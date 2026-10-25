@@ -238,7 +238,6 @@ export function createPractice(offline) {
   function openAnswer() {
     const question = currentQuestion();
     if (!question || state.submitting || (currentResult() && !currentDraft()?.redo)) return;
-    player.stop();
     if (!currentDraft()) {
       state.drafts = { ...state.drafts, [question.id]: { revision: question.revision, selectedOptionIds: [], redo: false } };
       saveProgress();
@@ -274,6 +273,7 @@ export function createPractice(offline) {
     const question = currentQuestion();
     const draft = currentDraft();
     if (!question || !draft?.selectedOptionIds.length || state.submitting) return;
+    player.stop();
     const graded = gradeQuestion(question, draft.selectedOptionIds);
     const attempt = pendingAttempt ?? {
       attemptId: createAttemptId(), bankId: state.bank.bankId,
