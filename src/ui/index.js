@@ -178,7 +178,10 @@ export function mountUi(root, practice) {
     } else if (draft?.redo) {
       content.append(element('p', '重新作答中；提交成功前，统计仍按上次结果计算。', 'hint'));
     }
-    main.append(content);
+    const body = element('div', '', 'practice-body');
+    body.append(content);
+    if (state.answerOpen) renderAnswer(body, state, question, draft);
+    main.append(body);
 
     const actions = element('nav', '', 'practice-actions');
     actions.append(button('上一题', () => practice.move(-1), {
@@ -203,15 +206,11 @@ export function mountUi(root, practice) {
       status.setAttribute('role', 'status');
       main.append(status);
     }
-
-    if (state.answerOpen) renderAnswer(main, state, question, draft);
   }
 
-  function renderAnswer(main, state, question, draft) {
-    const overlay = element('div', '', 'answer-overlay');
+  function renderAnswer(body, state, question, draft) {
     const panel = element('section', '', 'answer-panel');
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-modal', 'true');
     panel.setAttribute('aria-label', `回答第 ${question.displayNumber} 题`);
     const header = element('div', '', 'answer-header');
     header.append(element('h3', `回答第 ${question.displayNumber} 题`));
@@ -221,12 +220,13 @@ export function mountUi(root, practice) {
     const options = element('div', '', 'answer-options');
     for (const option of question.options) {
       const selected = draft?.selectedOptionIds.includes(option.id) ?? false;
-      const choice = button(`${selected ? '✓ ' : ''}${option.label}. ${option.text}`,
+      const choice = button(option.label,
         () => practice.selectOption(option.id), {
           disabled: state.submitting,
           className: `answer-choice ${selected ? 'selected' : ''}`,
         });
       choice.setAttribute('aria-pressed', String(selected));
+      choice.setAttribute('aria-label', `选项 ${option.label}`);
       options.append(choice);
     }
     panel.append(options);
@@ -235,8 +235,7 @@ export function mountUi(root, practice) {
       disabled: state.submitting || !draft?.selectedOptionIds.length,
       className: 'primary submit-answer',
     }));
-    overlay.append(panel);
-    main.append(overlay);
+    body.append(panel);
   }
 
   function render(state) {

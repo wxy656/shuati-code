@@ -141,9 +141,17 @@ select {
   margin: 0;
 }
 
+.practice-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 0.75rem;
+}
+
 .question-scroll {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow-y: auto;
   background: white;
   border-radius: 0.75rem;
@@ -193,21 +201,12 @@ select {
   white-space: pre-wrap;
 }
 
-.answer-overlay {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
-    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
-  background: rgb(18 29 39 / 65%);
-}
-
 .answer-panel {
   display: flex;
   flex-direction: column;
-  width: min(100%, 62rem);
-  max-height: calc(100dvh - 2rem);
+  align-self: flex-start;
+  width: min(18rem, 35%);
+  max-height: 100%;
   min-height: 0;
   padding: 1rem;
   border-radius: 0.75rem;
@@ -223,6 +222,7 @@ select {
 
 .answer-options {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   min-height: 0;
   overflow-y: auto;
@@ -231,8 +231,7 @@ select {
 
 .answer-choice {
   width: 100%;
-  text-align: left;
-  white-space: pre-wrap;
+  text-align: center;
 }
 
 .answer-choice.selected {
@@ -283,5 +282,16 @@ button:disabled {
 
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .practice-body {
+    flex-direction: column;
+  }
+
+  .answer-panel {
+    width: 100%;
+    max-height: 45%;
   }
 }
