@@ -1,0 +1,24 @@
+{
+  "banks": [
+    {
+      "bankId": "shanghai-poetry",
+      "name": "上海小学古诗文历年题库（解析版）",
+      "description": "从《上海小学古诗文历年题库1500题（解析版）》扫描 PDF 识别整理；题目与解析音频分开提供。",
+      "version": "v1",
+      "questionCount": 1499,
+      "dataPath": "banks/shanghai-poetry/v1/questions.json",
+      "resources": ["banks/shanghai-poetry/v1/questions.json"],
+      "estimatedBytes": 205000000
+    },
+    {
+      "bankId": "demo",
+      "name": "演示题库（非真实题库）",
+      "description": "仅用于开发页面和题库读取流程，不计入正式题库。",
+      "version": "v1",
+      "questionCount": 2,
+      "dataPath": "banks/demo/v1/questions.json",
+      "resources": ["banks/demo/v1/questions.json"],
+      "estimatedBytes": null
+    }
+  ]
+}

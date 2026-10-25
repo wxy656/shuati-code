@@ -1,0 +1,272 @@
+function element(tag, text, className) {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+
+function button(text, onClick, { disabled = false, className = '' } = {}) {
+  const node = element('button', text, className);
+  node.type = 'button';
+  node.disabled = disabled;
+  node.addEventListener('click', onClick);
+  return node;
+}
+
+function answerLabels(question, ids) {
+  return ids.map((id) => question.options.find((option) => option.id === id)?.label ?? id).join('、');
+}
+
+export function mountUi(root, practice) {
+  let previousQuestionId = null;
+  function renderHome(main, state) {
+    main.append(element('h2', '题库管理'));
+    if (!state.banks.length) {
+      if (!state.loading) main.append(element('p', '暂无可用题库。'));
+      return;
+    }
+
+    const selector = document.createElement('select');
+    selector.setAttribute('aria-label', '选择题库');
+    selector.disabled = state.loading;
+    for (const entry of state.banks) {
+      const option = element('option', entry.name);
+      option.value = entry.bankId;
+      option.selected = entry.bankId === state.bank?.bankId;
+      selector.append(option);
+    }
+    selector.addEventListener('change', () => practice.selectBank(selector.value));
+    main.append(selector);
+
+    if (!state.bank) return;
+    const card = element('section', '', 'bank-card');
+    card.append(element('h3', state.bank.name));
+    card.append(element('p', state.bank.description));
+    card.append(element('p', `版本 ${state.bank.version} · ${state.stats.total} 题`));
+    const stats = element('div', '', 'stats');
+    for (const [label, value] of [
+      ['总题数', state.stats.total], ['已完成', state.stats.completed],
+      ['未完成', state.stats.remaining], ['正确', state.stats.correct],
+      ['错误', state.stats.incorrect], ['正确率', state.stats.accuracy],
+    ]) {
+      const item = element('div', '', 'stat');
+      item.append(element('strong', String(value)), element('span', label));
+      stats.append(item);
+    }
+    card.append(stats);
+    card.append(button(state.savedQuestionId ? '继续练习' : '开始练习', practice.start, {
+      disabled: state.loading || !state.stats.total, className: 'primary',
+    }));
+
+    const jump = element('form', '', 'jump-form');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '输入题号，如 001';
+    input.setAttribute('aria-label', '指定题号');
+    const submit = element('button', '从指定题号开始');
+    submit.type = 'submit';
+    submit.disabled = state.loading || !state.stats.total;
+    jump.append(input, submit);
+    jump.addEventListener('submit', (event) => {
+      event.preventDefault();
+      practice.jumpToNumber(input.value);
+    });
+    card.append(jump);
+    main.append(card);
+
+    const offline = element('section', '', 'settings');
+    offline.append(element('h3', '离线使用'));
+    if (state.offline.available) {
+      offline.append(element('p', `题目：${state.offline.questionReady ? '可离线使用' : '尚未准备'} · 音频：${state.offline.audioReadyCount}/${state.offline.audioTotal} 已准备`));
+      const complete = state.offline.questionReady && state.offline.audioReadyCount === state.offline.audioTotal;
+      offline.append(button(state.offline.preparing ? '准备中…' : complete ? '已准备完成' : '准备离线资源',
+        practice.prepareOffline, { disabled: state.offline.preparing || complete }));
+      if (state.offline.preparing) {
+        const progress = document.createElement('progress');
+        progress.max = Math.max(1, state.offline.total);
+        progress.value = state.offline.done;
+        offline.append(progress, element('p', `已处理 ${state.offline.done}/${state.offline.total} 项`));
+      }
+      if (state.offline.failedCount) {
+        offline.append(element('p', `${state.offline.failedCount} 项准备失败，可再次点击准备重试。`, 'error'));
+        for (const failure of state.offline.failures) {
+          offline.append(element('p', `${failure.path}：${failure.reason}`, 'offline-failure'));
+        }
+      }
+    } else {
+      offline.append(element('p', '离线服务尚未就绪。'));
+    }
+    if (state.offline.error) offline.append(element('p', state.offline.error, 'error'));
+    main.append(offline);
+
+    const settings = element('section', '', 'settings');
+    settings.append(element('h3', '显示设置'));
+    const controls = element('div', '', 'button-row');
+    controls.append(
+      button('字号减小', () => practice.changeFontSize(-2)),
+      element('span', `${state.settings.fontSize}px`),
+      button('字号增大', () => practice.changeFontSize(2)),
+    );
+    settings.append(controls);
+    const audioSettings = element('div', '', 'audio-settings');
+    for (const [kind, label, checked] of [
+      ['question', '进入题目自动朗读', state.settings.autoQuestion],
+      ['explanation', '提交后自动朗读解析', state.settings.autoExplanation],
+    ]) {
+      const row = element('label', '', 'setting-row');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = checked;
+      checkbox.addEventListener('change', () => practice.setAutoPlay(kind, checkbox.checked));
+      row.append(checkbox, element('span', label));
+      audioSettings.append(row);
+    }
+    const rateRow = element('label', '', 'setting-row');
+    rateRow.append(element('span', '朗读语速'));
+    const rate = document.createElement('select');
+    for (const value of [0.75, 1, 1.25, 1.5]) {
+      const option = element('option', `${value} 倍`);
+      option.value = String(value);
+      option.selected = value === state.settings.rate;
+      rate.append(option);
+    }
+    rate.addEventListener('change', () => practice.changeRate(Number(rate.value)));
+    rateRow.append(rate);
+    audioSettings.append(rateRow);
+    settings.append(audioSettings);
+    main.append(settings);
+  }
+
+  function renderPractice(main, state) {
+    const question = practice.currentQuestion();
+    if (!question) return;
+    const result = practice.currentResult();
+    const draft = practice.currentDraft();
+    const showResult = result && !draft?.redo;
+
+    const header = element('header', '', 'practice-header');
+    header.append(button('返回题库', practice.backToBanks, { disabled: state.submitting }));
+    const heading = element('div', '');
+    heading.append(element('h2', state.bank.name));
+    heading.append(element('p', `第 ${question.displayNumber} 题 · ${state.position + 1}/${state.bank.questions.length} · ${question.type === 'multiple' ? '多选' : '单选'}`));
+    header.append(heading);
+    main.append(header);
+
+    const content = element('section', '', 'question-scroll');
+    content.style.setProperty('--question-size', `${state.settings.fontSize}px`);
+    content.append(element('p', question.stem, 'question-stem'));
+    const options = element('ul', '', 'question-options');
+    for (const option of question.options) {
+      options.append(element('li', `${option.label}. ${option.text}`));
+    }
+    content.append(options);
+
+    if (showResult) {
+      const resultBox = element('section', '', `result ${result.isCorrect ? 'correct' : 'incorrect'}`);
+      resultBox.append(element('h3', result.isCorrect ? '回答正确' : '回答错误'));
+      resultBox.append(element('p', `你的答案：${answerLabels(question, result.selectedOptionIds)}`));
+      resultBox.append(element('p', `正确答案：${answerLabels(question, question.correctOptionIds)}`));
+      resultBox.append(button(state.explanationOpen ? '收起解析' : '查看解析', practice.toggleExplanation));
+      if (state.explanationOpen) {
+        resultBox.append(element('p', question.explanation || '本题暂无解析', 'explanation'));
+      }
+      resultBox.append(button(question.audio?.explanation ? '朗读解析' : '暂无解析音频', practice.playExplanation, {
+        disabled: !question.audio?.explanation,
+      }));
+      resultBox.append(button('重新作答', practice.redo, { disabled: state.submitting }));
+      content.append(resultBox);
+    } else if (draft?.redo) {
+      content.append(element('p', '重新作答中；提交成功前，统计仍按上次结果计算。', 'hint'));
+    }
+    main.append(content);
+
+    const actions = element('nav', '', 'practice-actions');
+    actions.append(button('上一题', () => practice.move(-1), {
+      disabled: state.submitting || state.position === 0,
+    }));
+    actions.append(button(question.audio?.question ? '朗读题目' : '暂无题目音频', practice.playQuestion, {
+      disabled: !question.audio?.question,
+    }));
+    if (!showResult) {
+      actions.append(button('回答', practice.openAnswer, { disabled: state.submitting, className: 'primary' }));
+    }
+    actions.append(button(state.position === state.bank.questions.length - 1 ? '已到末题' : '下一题', () => practice.move(1), {
+      disabled: state.submitting || state.position === state.bank.questions.length - 1,
+    }));
+    main.append(actions);
+    if (state.audio.message) {
+      const status = element('p', state.audio.message, 'audio-status');
+      status.setAttribute('role', 'status');
+      main.append(status);
+    } else if (state.audio.status === 'loading' || state.audio.status === 'playing') {
+      const status = element('p', `${state.audio.kind === 'question' ? '题目' : '解析'}音频${state.audio.status === 'loading' ? '加载中' : '播放中'}`, 'audio-status');
+      status.setAttribute('role', 'status');
+      main.append(status);
+    }
+
+    if (state.answerOpen) renderAnswer(main, state, question, draft);
+  }
+
+  function renderAnswer(main, state, question, draft) {
+    const overlay = element('div', '', 'answer-overlay');
+    const panel = element('section', '', 'answer-panel');
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', `回答第 ${question.displayNumber} 题`);
+    const header = element('div', '', 'answer-header');
+    header.append(element('h3', `回答第 ${question.displayNumber} 题`));
+    header.append(button('关闭', practice.closeAnswer, { disabled: state.submitting }));
+    panel.append(header);
+    if (question.type === 'multiple') panel.append(element('p', '多选题，可选多项。'));
+    const options = element('div', '', 'answer-options');
+    for (const option of question.options) {
+      const selected = draft?.selectedOptionIds.includes(option.id) ?? false;
+      const choice = button(`${selected ? '✓ ' : ''}${option.label}. ${option.text}`,
+        () => practice.selectOption(option.id), {
+          disabled: state.submitting,
+          className: `answer-choice ${selected ? 'selected' : ''}`,
+        });
+      choice.setAttribute('aria-pressed', String(selected));
+      options.append(choice);
+    }
+    panel.append(options);
+    if (state.error) panel.append(element('p', state.error, 'error'));
+    panel.append(button(state.submitting ? '保存中…' : '提交答案', practice.submit, {
+      disabled: state.submitting || !draft?.selectedOptionIds.length,
+      className: 'primary submit-answer',
+    }));
+    overlay.append(panel);
+    main.append(overlay);
+  }
+
+  function render(state) {
+    const questionId = state.screen === 'practice' ? practice.currentQuestion()?.id : null;
+    const sameQuestion = questionId === previousQuestionId;
+    const questionScroll = sameQuestion ? root.querySelector('.question-scroll')?.scrollTop ?? 0 : 0;
+    const answerScroll = sameQuestion ? root.querySelector('.answer-options')?.scrollTop ?? 0 : 0;
+    const main = element('main', '', 'page');
+    if (state.screen === 'practice') main.classList.add('practice-page');
+    main.append(element('h1', '刷题', 'app-title'));
+    if (state.loading) main.append(element('p', '正在加载…'));
+    if (state.error && !state.answerOpen) main.append(element('p', state.error, 'error'));
+    if (state.notice) main.append(element('p', state.notice, 'hint'));
+    if (state.offline.updateAvailable) {
+      const update = element('section', '', 'update-notice');
+      update.append(element('span', state.screen === 'home'
+        ? '新版本已准备好。' : '新版本已准备好，返回题库后可更新。'));
+      if (state.screen === 'home') update.append(button('更新应用', practice.activateUpdate));
+      main.append(update);
+    }
+    if (state.screen === 'practice' && state.bank) renderPractice(main, state);
+    else renderHome(main, state);
+    root.replaceChildren(main);
+    const nextQuestionScroll = root.querySelector('.question-scroll');
+    const nextAnswerScroll = root.querySelector('.answer-options');
+    if (nextQuestionScroll) nextQuestionScroll.scrollTop = questionScroll;
+    if (nextAnswerScroll) nextAnswerScroll.scrollTop = answerScroll;
+    previousQuestionId = questionId;
+  }
+
+  practice.subscribe(render);
+  render(practice.state);
+}

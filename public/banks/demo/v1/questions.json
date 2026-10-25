@@ -1,0 +1,37 @@
+{
+  "bankId": "demo",
+  "version": "v1",
+  "questions": [
+    {
+      "id": "demo-001",
+      "revision": 1,
+      "displayNumber": "001",
+      "type": "single",
+      "stem": "演示题：下列哪项是浏览器用于保存结构化学习记录的接口？",
+      "options": [
+        { "id": "a", "label": "A", "text": "Canvas" },
+        { "id": "b", "label": "B", "text": "IndexedDB" },
+        { "id": "c", "label": "C", "text": "Web Audio" }
+      ],
+      "correctOptionIds": ["b"],
+      "explanation": "IndexedDB 可在浏览器本地保存结构化数据。",
+      "audio": { "question": null, "explanation": null }
+    },
+    {
+      "id": "demo-002",
+      "revision": 1,
+      "displayNumber": "002",
+      "type": "multiple",
+      "stem": "演示题：下列哪些文件可以随静态网页一起发布？",
+      "options": [
+        { "id": "a", "label": "A", "text": "HTML 文件" },
+        { "id": "b", "label": "B", "text": "CSS 文件" },
+        { "id": "c", "label": "C", "text": "JavaScript 文件" },
+        { "id": "d", "label": "D", "text": "浏览器中已有的个人学习记录" }
+      ],
+      "correctOptionIds": ["a", "b", "c"],
+      "explanation": "网页文件可随构建产物发布；本地学习记录保存在用户的浏览器中。",
+      "audio": { "question": null, "explanation": null }
+    }
+  ]
+}

@@ -4,10 +4,284 @@
   background: #f7f8fa;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
 }
 
-main {
-  padding: 2rem;
+.page {
+  min-height: 100dvh;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+.practice-page {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+h2, h3 {
+  margin-block: 0.4rem 0.8rem;
+}
+
+p {
+  line-height: 1.5;
+}
+
+.bank-card {
+  border: 1px solid #c6cdd4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-block: 1rem;
+  background: white;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: #eef3f7;
+  border-radius: 0.5rem;
+}
+
+.stat strong {
+  font-size: 1.4rem;
+}
+
+.jump-form, .button-row, .practice-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.jump-form {
+  margin-top: 1rem;
+}
+
+.jump-form input {
+  min-height: 44px;
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.audio-settings {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.settings {
+  margin-block: 1rem;
+}
+
+.settings progress {
+  display: block;
+  width: min(100%, 28rem);
+  margin-top: 0.75rem;
+}
+
+.offline-failure {
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+
+.update-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: #e4f0fa;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.setting-row input {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+select {
+  min-height: 44px;
+  padding: 0.6rem;
+  font: inherit;
+  max-width: 100%;
+}
+
+.practice-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.practice-header h2, .practice-header p {
+  margin: 0;
+}
+
+.question-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: white;
+  border-radius: 0.75rem;
+  padding: clamp(1rem, 2vw, 2rem);
+  font-size: var(--question-size);
+}
+
+.question-stem {
+  white-space: pre-wrap;
+  margin-top: 0;
+}
+
+.question-options {
+  padding-left: 1.5em;
+}
+
+.question-options li {
+  margin-block: 0.6rem;
+  white-space: pre-wrap;
+}
+
+.practice-actions {
+  justify-content: space-between;
+}
+
+.audio-status {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.result {
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.75em;
+}
+
+.result.correct {
+  background: #e5f6e9;
+}
+
+.result.incorrect {
+  background: #fff0e8;
+}
+
+.explanation {
+  white-space: pre-wrap;
+}
+
+.answer-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  background: rgb(18 29 39 / 65%);
+}
+
+.answer-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 62rem);
+  max-height: calc(100dvh - 2rem);
+  min-height: 0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: white;
+}
+
+.answer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.answer-options {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-block: 0.5rem;
+}
+
+.answer-choice {
+  width: 100%;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.answer-choice.selected {
+  border-color: #1261a0;
+  background: #dceeff;
+  font-weight: 700;
+}
+
+.submit-answer {
+  align-self: flex-end;
+  margin-top: 0.75rem;
+}
+
+.error {
+  color: #a32b24;
+}
+
+.hint {
+  color: #5b626a;
+}
+
+button {
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border: 1px solid #8a99a7;
+  border-radius: 0.5rem;
+  background: white;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.primary {
+  border-color: #125a92;
+  background: #125a92;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+@media (orientation: portrait) {
+  .practice-header {
+    align-items: flex-start;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

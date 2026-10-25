@@ -1,8 +1,10 @@
 import './style.css';
+import { createPractice } from './practice/index.js';
+import { createOffline } from './offline/index.js';
+import { mountUi } from './ui/index.js';
 
-document.querySelector('#app').innerHTML = `
-  <main>
-    <h1>刷题</h1>
-    <p>项目已准备好，题库和练习功能待开发。</p>
-  </main>
-`;
+const offline = createOffline();
+const practice = createPractice(offline);
+mountUi(document.querySelector('#app'), practice);
+practice.initialize();
+offline.initialize();
