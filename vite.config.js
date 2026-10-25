@@ -4,9 +4,17 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   base: './',
+  build: {
+    rolldownOptions: {
+      output: { entryFileNames: 'assets/[name].js' },
+    },
+  },
   plugins: [{
     name: 'offline-shell-list',
     generateBundle(_options, bundle) {
+      for (const fileName of ['assets/index-Bjle-BFn.js', 'assets/index-DIOki5y8.js']) {
+        this.emitFile({ type: 'asset', fileName, source: bundle['assets/index.js'].code });
+      }
       const files = ['.', 'index.html', 'banks/index.json', 'favicon.svg', 'manifest.webmanifest',
         ...Object.keys(bundle).filter((name) => name.startsWith('assets/') && !name.endsWith('.map'))];
       const version = createHash('sha256')
