@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -12,8 +13,9 @@ export default defineConfig({
         .update(JSON.stringify(files.map((name) => [name, bundle[name]?.code ?? bundle[name]?.source ?? ''])))
         .digest('hex').slice(0, 12);
       this.emitFile({
-        type: 'asset', fileName: 'shell-files.js',
-        source: `self.SHELL_VERSION = ${JSON.stringify(version)};\nself.SHELL_FILES = ${JSON.stringify(files)};\n`,
+        type: 'asset', fileName: 'sw.js',
+        source: `self.SHELL_VERSION = ${JSON.stringify(version)};\nself.SHELL_FILES = ${JSON.stringify(files)};\n`
+          + readFileSync(new URL('./src/sw.js', import.meta.url), 'utf8'),
       });
     },
   }],

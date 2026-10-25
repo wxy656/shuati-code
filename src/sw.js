@@ -1,5 +1,3 @@
-importScripts('./shell-files.js');
-
 const scope = self.registration.scope;
 const shellName = `shuati-shell-${self.SHELL_VERSION}`;
 const bankName = (bankId, version) => `shuati-bank-${bankId}-${version}`;
