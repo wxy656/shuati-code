@@ -7,7 +7,9 @@ function url(path) {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(shellName).then((cache) => cache.addAll(self.SHELL_FILES.map(url))));
+  event.waitUntil(caches.open(shellName).then((cache) => cache.addAll(
+    self.SHELL_FILES.map((path) => new Request(url(path), { cache: 'reload' })),
+  )));
 });
 
 self.addEventListener('activate', (event) => {
@@ -43,6 +45,13 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || !request.url.startsWith(scope)) return;
   event.respondWith((async () => {
+    if (request.mode === 'navigate') {
+      try {
+        return await fetch(request, { cache: 'reload' });
+      } catch {
+        return (await caches.open(shellName)).match(url('index.html'));
+      }
+    }
     const cached = await caches.match(request.url);
     if (cached) {
       const range = request.headers.get('Range');
