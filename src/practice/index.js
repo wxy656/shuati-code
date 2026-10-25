@@ -46,7 +46,7 @@ export function createPractice(offline) {
     banks: [], bank: null, screen: 'home', position: 0,
     results: new Map(), drafts: {}, stats: null,
     settings: { ...defaultSettings }, loading: false, submitting: false,
-    answerOpen: false, explanationOpen: true, error: '', notice: '',
+    answerOpen: false, error: '', notice: '',
     audio: { status: 'idle', kind: null, message: '' },
     offline: { ...offline.state },
   };
@@ -174,7 +174,6 @@ export function createPractice(offline) {
     state.position = position;
     state.screen = 'practice';
     state.answerOpen = false;
-    state.explanationOpen = true;
     state.error = '';
     state.audio = { status: 'idle', kind: null, message: '' };
     pendingAttempt = null;
@@ -188,7 +187,9 @@ export function createPractice(offline) {
       submitted: Boolean(currentResult()),
     });
     notify();
-    if (state.settings.autoQuestion) playAudio('question', true);
+    if (state.settings.autoQuestion && (!currentResult() || currentDraft()?.redo)) {
+      playAudio('question', true);
+    }
   }
 
   function start() {
@@ -304,7 +305,6 @@ export function createPractice(offline) {
       });
       state.stats = calculateStats(state.bank, state.results);
       state.answerOpen = false;
-      state.explanationOpen = true;
       pendingAttempt = null;
       saved = true;
       console.info('作答已保存', {
@@ -331,11 +331,6 @@ export function createPractice(offline) {
     state.error = '';
     pendingAttempt = null;
     saveProgress();
-    notify();
-  }
-
-  function toggleExplanation() {
-    state.explanationOpen = !state.explanationOpen;
     notify();
   }
 
@@ -366,7 +361,7 @@ export function createPractice(offline) {
   return {
     state, subscribe: (listener) => listeners.add(listener), currentQuestion, currentResult, currentDraft,
     initialize, selectBank, start, jumpToNumber, move, backToBanks,
-    openAnswer, closeAnswer, selectOption, submit, redo, toggleExplanation, changeFontSize,
+    openAnswer, closeAnswer, selectOption, submit, redo, changeFontSize,
     playQuestion: () => playAudio('question'), playExplanation: () => playAudio('explanation'),
     setAutoPlay, changeRate,
     prepareOffline: offline.prepare,

@@ -148,15 +148,14 @@ select {
   gap: 0.75rem;
 }
 
-.question-scroll {
+.practice-content {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  overflow-y: auto;
+  overflow: hidden;
   background: white;
   border-radius: 0.75rem;
   padding: clamp(1rem, 2vw, 2rem);
-  font-size: var(--question-size);
 }
 
 .question-stem {
@@ -182,23 +181,29 @@ select {
   font-size: 0.9rem;
 }
 
-.result {
-  border-radius: 0.75rem;
-  padding: 1rem;
-  margin-top: 1.5rem;
-  font-size: 0.75em;
+.result-view h3 {
+  margin-top: 0;
 }
 
-.result.correct {
+.result-view p {
+  margin-block: 0.35em;
+}
+
+.result-view.correct {
   background: #e5f6e9;
 }
 
-.result.incorrect {
+.result-view.incorrect {
   background: #fff0e8;
 }
 
 .explanation {
   white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.result-view .explanation {
+  margin-top: 0.75em;
 }
 
 .answer-panel {
@@ -224,8 +229,6 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
-  min-height: 0;
-  overflow-y: auto;
   padding-block: 0.5rem;
 }
 
@@ -292,6 +295,5 @@ button:disabled {
 
   .answer-panel {
     width: 100%;
-    max-height: 45%;
   }
 }

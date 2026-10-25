@@ -18,7 +18,16 @@ function answerLabels(question, ids) {
 }
 
 export function mountUi(root, practice) {
-  let previousQuestionId = null;
+  function fitPracticeContent() {
+    const content = root.querySelector('.practice-content');
+    if (!content) return;
+    let size = Number(content.dataset.fontSize);
+    content.style.fontSize = `${size}px`;
+    while (content.scrollHeight > content.clientHeight && size > 12) {
+      content.style.fontSize = `${--size}px`;
+    }
+  }
+
   function renderHome(main, state) {
     main.append(element('h2', '题库管理'));
     if (!state.banks.length) {
@@ -152,31 +161,24 @@ export function mountUi(root, practice) {
     header.append(heading);
     main.append(header);
 
-    const content = element('section', '', 'question-scroll');
-    content.style.setProperty('--question-size', `${state.settings.fontSize}px`);
-    content.append(element('p', question.stem, 'question-stem'));
-    const options = element('ul', '', 'question-options');
-    for (const option of question.options) {
-      options.append(element('li', `${option.label}. ${option.text}`));
-    }
-    content.append(options);
-
+    const content = element('section', '', `practice-content ${showResult
+      ? `result-view ${result.isCorrect ? 'correct' : 'incorrect'}` : 'question-view'}`);
+    content.dataset.fontSize = String(state.settings.fontSize);
     if (showResult) {
-      const resultBox = element('section', '', `result ${result.isCorrect ? 'correct' : 'incorrect'}`);
-      resultBox.append(element('h3', result.isCorrect ? '回答正确' : '回答错误'));
-      resultBox.append(element('p', `你的答案：${answerLabels(question, result.selectedOptionIds)}`));
-      resultBox.append(element('p', `正确答案：${answerLabels(question, question.correctOptionIds)}`));
-      resultBox.append(button(state.explanationOpen ? '收起解析' : '查看解析', practice.toggleExplanation));
-      if (state.explanationOpen) {
-        resultBox.append(element('p', question.explanation || '本题暂无解析', 'explanation'));
+      content.append(element('h3', result.isCorrect ? '回答正确' : '回答错误'));
+      content.append(element('p', `你的答案：${answerLabels(question, result.selectedOptionIds)}`));
+      content.append(element('p', `正确答案：${answerLabels(question, question.correctOptionIds)}`));
+      content.append(element('p', question.explanation || '本题暂无解析', 'explanation'));
+    } else {
+      content.append(element('p', question.stem, 'question-stem'));
+      const options = element('ul', '', 'question-options');
+      for (const option of question.options) {
+        options.append(element('li', `${option.label}. ${option.text}`));
       }
-      resultBox.append(button(question.audio?.explanation ? '朗读解析' : '暂无解析音频', practice.playExplanation, {
-        disabled: !question.audio?.explanation,
-      }));
-      resultBox.append(button('重新作答', practice.redo, { disabled: state.submitting }));
-      content.append(resultBox);
-    } else if (draft?.redo) {
-      content.append(element('p', '重新作答中；提交成功前，统计仍按上次结果计算。', 'hint'));
+      content.append(options);
+      if (draft?.redo) {
+        content.append(element('p', '重新作答中；提交成功前，统计仍按上次结果计算。', 'hint'));
+      }
     }
     const body = element('div', '', 'practice-body');
     body.append(content);
@@ -187,12 +189,14 @@ export function mountUi(root, practice) {
     actions.append(button('上一题', () => practice.move(-1), {
       disabled: state.submitting || state.position === 0,
     }));
-    actions.append(button(question.audio?.question ? '朗读题目' : '暂无题目音频', practice.playQuestion, {
-      disabled: !question.audio?.question,
+    const audioKind = showResult ? 'explanation' : 'question';
+    actions.append(button(question.audio?.[audioKind] ? `朗读${showResult ? '解析' : '题目'}` : `暂无${showResult ? '解析' : '题目'}音频`,
+      showResult ? practice.playExplanation : practice.playQuestion, {
+      disabled: !question.audio?.[audioKind],
     }));
-    if (!showResult) {
-      actions.append(button('回答', practice.openAnswer, { disabled: state.submitting, className: 'primary' }));
-    }
+    actions.append(showResult
+      ? button('重新作答', practice.redo, { disabled: state.submitting })
+      : button('回答', practice.openAnswer, { disabled: state.submitting, className: 'primary' }));
     actions.append(button(state.position === state.bank.questions.length - 1 ? '已到末题' : '下一题', () => practice.move(1), {
       disabled: state.submitting || state.position === state.bank.questions.length - 1,
     }));
@@ -239,10 +243,6 @@ export function mountUi(root, practice) {
   }
 
   function render(state) {
-    const questionId = state.screen === 'practice' ? practice.currentQuestion()?.id : null;
-    const sameQuestion = questionId === previousQuestionId;
-    const questionScroll = sameQuestion ? root.querySelector('.question-scroll')?.scrollTop ?? 0 : 0;
-    const answerScroll = sameQuestion ? root.querySelector('.answer-options')?.scrollTop ?? 0 : 0;
     const main = element('main', '', 'page');
     if (state.screen === 'practice') main.classList.add('practice-page');
     main.append(element('h1', '刷题', 'app-title'));
@@ -259,13 +259,10 @@ export function mountUi(root, practice) {
     if (state.screen === 'practice' && state.bank) renderPractice(main, state);
     else renderHome(main, state);
     root.replaceChildren(main);
-    const nextQuestionScroll = root.querySelector('.question-scroll');
-    const nextAnswerScroll = root.querySelector('.answer-options');
-    if (nextQuestionScroll) nextQuestionScroll.scrollTop = questionScroll;
-    if (nextAnswerScroll) nextAnswerScroll.scrollTop = answerScroll;
-    previousQuestionId = questionId;
+    fitPracticeContent();
   }
 
+  window.addEventListener('resize', fitPracticeContent);
   practice.subscribe(render);
   render(practice.state);
 }
