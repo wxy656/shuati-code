@@ -229,7 +229,9 @@ export function mountUi(root, practice) {
     panel.setAttribute('aria-label', `回答第 ${question.displayNumber} 题`);
     const header = element('div', '', 'answer-header');
     header.append(element('h3', `回答第 ${question.displayNumber} 题`));
-    header.append(button('关闭', practice.closeAnswer, { disabled: state.submitting }));
+    const close = button('×', practice.closeAnswer, { disabled: state.submitting });
+    close.setAttribute('aria-label', '关闭');
+    header.append(close);
     panel.append(header);
     if (question.type === 'multiple') panel.append(element('p', '多选题，可选多项。'));
     const options = element('div', '', 'answer-options');

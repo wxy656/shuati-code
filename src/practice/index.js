@@ -173,7 +173,7 @@ export function createPractice(offline) {
     player.stop();
     state.position = position;
     state.screen = 'practice';
-    state.answerOpen = false;
+    state.answerOpen = !currentResult() || Boolean(currentDraft()?.redo);
     state.error = '';
     state.audio = { status: 'idle', kind: null, message: '' };
     pendingAttempt = null;
@@ -255,8 +255,8 @@ export function createPractice(offline) {
 
   function selectOption(optionId) {
     const question = currentQuestion();
-    const draft = currentDraft();
-    if (!state.answerOpen || !question || !draft || state.submitting) return;
+    if (!state.answerOpen || !question || state.submitting) return;
+    const draft = currentDraft() ?? { revision: question.revision, selectedOptionIds: [], redo: false };
     const selectedOptionIds = question.type === 'single'
       ? [optionId]
       : draft.selectedOptionIds.includes(optionId)
