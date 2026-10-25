@@ -117,6 +117,17 @@ export function mountUi(root, practice) {
       button('字号增大', () => practice.changeFontSize(2)),
     );
     settings.append(controls);
+    if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
+      const fullscreenButton = button(document.fullscreenElement ? '退出全屏' : '进入全屏', async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else await document.documentElement.requestFullscreen();
+        } catch {
+          fullscreenButton.after(element('p', '无法切换全屏，请通过 Safari 的分享菜单添加到主屏幕后打开。', 'error'));
+        }
+      }, { className: 'fullscreen-toggle' });
+      settings.append(fullscreenButton);
+    }
     const audioSettings = element('div', '', 'audio-settings');
     for (const [kind, label, checked] of [
       ['question', '进入题目自动朗读', state.settings.autoQuestion],
@@ -263,6 +274,10 @@ export function mountUi(root, practice) {
   }
 
   window.addEventListener('resize', fitPracticeContent);
+  document.addEventListener('fullscreenchange', () => {
+    const toggle = root.querySelector('.fullscreen-toggle');
+    if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
+  });
   practice.subscribe(render);
   render(practice.state);
 }
