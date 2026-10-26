@@ -1,4 +1,5 @@
 import { resourceUrl } from '../banks/index.js';
+import { debugLog } from '../debug.js';
 
 export function createOffline() {
   const listeners = new Set();
@@ -43,7 +44,7 @@ export function createOffline() {
       state.audioTotal = paths.length;
       state.audioReadyCount = paths.length - result.missingAudio.length;
       state.error = '';
-      console.info('离线资源状态', {
+      debugLog('离线资源状态', {
         bankId: bank.bankId, version: bank.version,
         questionReady: state.questionReady, audioReady: state.audioReadyCount, audioTotal: paths.length,
       });
@@ -52,6 +53,7 @@ export function createOffline() {
     } catch (error) {
       if (selected === selection) {
         state.error = `检查离线资源失败：${error.message}`;
+        debugLog('离线资源检查失败', { bankId: bank.bankId, version: bank.version, error: error.message });
         notify();
       }
       return null;
@@ -96,7 +98,7 @@ export function createOffline() {
         state.done += batch.length;
         state.failedCount += result.failed.length;
         state.failures.push(...result.failed.slice(0, Math.max(0, 5 - state.failures.length)));
-        console.info('离线资源准备', {
+        debugLog('离线资源准备', {
           bankId: bank.bankId, version: bank.version, done: state.done,
           total: state.total, succeeded: result.succeeded, failed: result.failed.length,
         });
@@ -104,7 +106,10 @@ export function createOffline() {
       }
       if (selected === selection) await inspect(bank);
     } catch (error) {
-      if (selected === selection) state.error = `离线准备中断：${error.message}`;
+      if (selected === selection) {
+        state.error = `离线准备中断：${error.message}`;
+        debugLog('离线资源准备失败', { bankId: bank.bankId, version: bank.version, error: error.message });
+      }
     } finally {
       if (selected === selection) {
         state.preparing = false;

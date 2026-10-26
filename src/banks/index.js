@@ -1,3 +1,5 @@
+import { debugLog } from '../debug.js';
+
 const loadedBanks = new Map();
 
 export function resourceUrl(path) {
@@ -53,7 +55,7 @@ export async function loadBank(entry) {
 
   const bank = { ...entry, questions: data.questions, positionById, positionByDisplayNumber };
   loadedBanks.set(key, bank);
-  console.info('题库加载', { bankId: entry.bankId, version: entry.version, count: bank.questions.length });
+  debugLog('题库加载', { bankId: entry.bankId, version: entry.version, count: bank.questions.length });
   return bank;
 }
 

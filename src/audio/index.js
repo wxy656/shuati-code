@@ -1,3 +1,5 @@
+import { debugLog } from '../debug.js';
+
 export function createAudioPlayer(onStatus) {
   const audio = new Audio();
   let current = null;
@@ -6,7 +8,7 @@ export function createAudioPlayer(onStatus) {
   function report(status, message = '') {
     if (!current) return;
     const details = { ...current, status, message };
-    console.info('音频', details);
+    debugLog('音频', details);
     onStatus(details);
   }
 
@@ -18,7 +20,7 @@ export function createAudioPlayer(onStatus) {
     audio.pause();
     audio.removeAttribute('src');
     audio.load();
-    console.info('音频', { ...previous, status: 'stopped' });
+    debugLog('音频', { ...previous, status: 'stopped' });
     onStatus({ ...previous, status: 'stopped', message: '' });
   }
 

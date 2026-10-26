@@ -2,6 +2,7 @@ import { findQuestionPosition, loadBank, loadBankIndex, resourceUrl } from '../b
 import { createAudioPlayer } from '../audio/index.js';
 import { gradeQuestion } from '../grading/index.js';
 import { createStorage } from '../storage/index.js';
+import { debugLog } from '../debug.js';
 
 const defaultSettings = {
   fontSize: 30,
@@ -101,7 +102,7 @@ export function createPractice(offline) {
         state.error = `进度保存失败：${error.message}`;
         notify();
       }
-      console.warn('进度保存失败', { bankId: snapshot.bankId, questionId: snapshot.questionId, error });
+      debugLog('进度保存失败', { bankId: snapshot.bankId, questionId: snapshot.questionId, error: error.message });
     });
   }
 
@@ -119,7 +120,7 @@ export function createPractice(offline) {
     state.notice = '';
     state.audio = { status: 'idle', kind: null, message: '' };
     offline.selectBank(bank);
-    console.info('题库恢复', {
+    debugLog('题库恢复', {
       bankId: bank.bankId,
       version: bank.version,
       questionId: state.savedQuestionId,
@@ -179,8 +180,9 @@ export function createPractice(offline) {
     pendingAttempt = null;
     state.savedQuestionId = currentQuestion().id;
     saveProgress();
-    console.info('进入题目', {
+    debugLog('进入题目', {
       bankId: state.bank.bankId,
+      version: state.bank.version,
       questionId: currentQuestion().id,
       type: currentQuestion().type,
       selectedOptionIds: currentDraft()?.selectedOptionIds ?? [],
@@ -288,7 +290,7 @@ export function createPractice(offline) {
     state.submitting = true;
     state.error = '';
     notify();
-    console.info('提交判题', {
+    debugLog('提交判题', {
       attemptId: attempt.attemptId, bankId: attempt.bankId,
       questionId: question.id, selectedOptionIds: graded.selectedOptionIds,
       correctOptionIds: graded.correctOptionIds, isCorrect: graded.isCorrect,
@@ -307,14 +309,14 @@ export function createPractice(offline) {
       state.answerOpen = false;
       pendingAttempt = null;
       saved = true;
-      console.info('作答已保存', {
+      debugLog('作答已保存', {
         attemptId: attempt.attemptId, bankId: attempt.bankId,
         questionId: question.id, result: attempt.isCorrect,
         completed: state.stats.completed, correct: state.stats.correct, incorrect: state.stats.incorrect,
       });
     } catch (error) {
       state.error = `保存失败，请重试：${error.message}`;
-      console.warn('作答保存失败', { attemptId: attempt.attemptId, questionId: question.id, error });
+      debugLog('作答保存失败', { attemptId: attempt.attemptId, questionId: question.id, error: error.message });
     } finally {
       state.submitting = false;
       notify();

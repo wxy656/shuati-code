@@ -1,3 +1,5 @@
+import { debugLog } from '../debug.js';
+
 const DB_NAME = 'shuati-learning';
 const DB_VERSION = 1;
 
@@ -78,6 +80,11 @@ export function createStorage() {
     });
     transaction.objectStore('progress').put(progress);
     await done;
+    debugLog('作答写入', {
+      attemptId: attempt.attemptId, bankId: attempt.bankId, questionId: attempt.questionId,
+      selectedOptionIds: attempt.selectedOptionIds, isCorrect: attempt.isCorrect,
+      progressQuestionId: progress.questionId,
+    });
   }
 
   return { readSettings, saveSettings, readBankState, saveProgress, saveAttempt };

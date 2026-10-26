@@ -9,6 +9,8 @@ npm ci
 npm run dev
 ```
 
+题库文件放在本地 `public/banks/` 目录（包含 `index.json`）。该目录不纳入 Git；新工作区需要自行提供题库文件。
+
 生产构建与预览：`npm run build`、`npm run preview`。电脑本地网页可直接调试；iPad 在同一局域网通过电脑地址访问普通 HTTP 页面时可以在线刷题，但离线缓存需要 iPad 信任的 HTTPS 地址。电脑的 `localhost` 只代表电脑自身，不能作为 iPad 的访问地址。
 
 ## 使用
@@ -20,3 +22,5 @@ npm run dev
 ## 发布
 
 在仓库 Settings → Pages 将 Source 设为 GitHub Actions 后，推送到 `main` 会运行 `Publish GitHub Pages` 工作流；也可在 Actions 手动运行。访问地址为 `https://wxy656.github.io/shuati-code/`。
+
+当前工作流只使用仓库文件构建；题库移出 Git 后，新部署需要另行提供题库资源，否则网站无法加载题库。
