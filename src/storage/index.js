@@ -136,22 +136,20 @@ export function createStorage() {
 
   async function resetBank(bankId, questionId) {
     const db = await database;
-    const transaction = db.transaction(['attempts', 'questionStates', 'progress', 'wrongBook'], 'readwrite');
+    const transaction = db.transaction(['attempts', 'questionStates', 'progress'], 'readwrite');
     const done = transactionDone(transaction);
     transaction.objectStore('progress').put({ bankId, questionId });
     transaction.objectStore('questionStates').index('bankId').openCursor(bankId).onsuccess = (event) => {
       const cursor = event.target.result;
       if (cursor) { cursor.delete(); cursor.continue(); }
     };
-    for (const name of ['attempts', 'wrongBook']) {
-      transaction.objectStore(name).openCursor().onsuccess = (event) => {
-        const cursor = event.target.result;
-        if (cursor) {
-          if (cursor.value.bankId === bankId) cursor.delete();
-          cursor.continue();
-        }
-      };
-    }
+    transaction.objectStore('attempts').openCursor().onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) {
+        if (cursor.value.bankId === bankId) cursor.delete();
+        cursor.continue();
+      }
+    };
     await done;
   }
 

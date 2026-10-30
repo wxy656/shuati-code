@@ -146,7 +146,7 @@ export function mountUi(root, practice) {
       disabled: state.loading || !state.stats.total, className: 'primary',
     }));
     card.append(button('从头开始', () => {
-      if (window.confirm('清空当前题库的已完成、正确、错误计数和错题集，并从第一题开始？')) {
+      if (window.confirm('清空当前题库的已完成、正确、错误计数，并从第一题开始？错题集会保留。')) {
         practice.resetFromStart();
       }
     }, { disabled: state.loading || !state.stats.total }));

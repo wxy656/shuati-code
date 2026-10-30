@@ -221,7 +221,6 @@ export function createPractice(offline) {
       await progressWrites.catch(() => {});
       await storage.resetBank(state.bank.bankId, state.bank.questions[0].id);
       state.results = new Map();
-      state.wrong = new Map();
       state.drafts = {};
       state.sessionResult = null;
       state.stats = calculateStats(state.bank, state.results);
