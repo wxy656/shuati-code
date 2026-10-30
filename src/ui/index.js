@@ -25,7 +25,7 @@ const keyActions = [
   ['submit', '提交'],
   ['optionPrevious', '上一选项（可选）'], ['optionNext', '下一选项（可选）'],
   ['optionToggle', '勾选当前选项（可选）'],
-  ['back', '返回题库'], ['redo', '重新作答'], ['cancel', '关闭回答'],
+  ['back', '返回题库'], ['redo', '重新作答'],
 ];
 
 function keyName(code) {
@@ -44,8 +44,8 @@ export function mountUi(root, practice) {
 
   function renderDataTools(main, state) {
     const tools = element('section', '', 'settings');
-    tools.append(element('h3', '题库与学习数据'));
-    tools.append(element('p', '正式题库 ZIP 下载到“文件”后，在这里选择导入；学习备份只含题号、对错状态和设置，不含作答选项及题库音频。'));
+    tools.append(element('h3', '题库离线使用'));
+    tools.append(element('p', '完整题库：先下载 ZIP 到“文件”，再选择该 ZIP 导入本机。'));
     const release = element('a', '下载完整题库 ZIP（v1，1499 题，约 191 MiB）');
     release.href = 'https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip';
     release.target = '_blank';
@@ -65,21 +65,32 @@ export function mountUi(root, practice) {
     tools.append(row);
     if (state.importing) tools.append(element('p', `正在导入，已保存 ${state.importCount} 个文件…`));
     if (state.storageStatus) tools.append(element('p', state.storageStatus));
-    const backupRow = element('div', '', 'button-row');
-    backupRow.append(button('导出学习备份', async () => {
-      try {
-        const backup = await practice.exportBackup();
-        const url = URL.createObjectURL(new Blob([JSON.stringify(backup)], { type: 'application/json' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `刷题学习备份-${new Date().toISOString().slice(0, 10)}.json`;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-      } catch (error) {
-        dataFeedback = `导出失败：${error.message}`;
-        render(practice.state);
+    if (state.bank) {
+      const complete = state.offline.questionReady && state.offline.audioReadyCount === state.offline.audioTotal;
+      tools.append(element('p', `${state.bank.name}：题目${state.offline.questionReady ? '已保存' : '未保存'} · 音频 ${state.offline.audioReadyCount}/${state.offline.audioTotal} 已保存`));
+      if (!state.bank.local && state.offline.available) {
+        tools.append(button(state.offline.preparing ? '下载中…' : complete ? '已下载，可离线使用' : '下载当前题库到本机',
+          practice.prepareOffline, { disabled: state.offline.preparing || complete }));
+        if (state.offline.preparing) {
+          const progress = document.createElement('progress');
+          progress.max = Math.max(1, state.offline.total);
+          progress.value = state.offline.done;
+          tools.append(progress, element('p', `已下载 ${state.offline.done}/${state.offline.total} 项`));
+        }
+        if (state.offline.failedCount) {
+          tools.append(element('p', `${state.offline.failedCount} 项下载失败，可再次点击下载补齐。`, 'error'));
+          for (const failure of state.offline.failures) {
+            tools.append(element('p', `${failure.path}：${failure.reason}`, 'offline-failure'));
+          }
+        }
+      } else if (!state.bank.local) {
+        tools.append(element('p', '离线服务尚未就绪。'));
       }
-    }));
+      if (state.offline.error) tools.append(element('p', state.offline.error, 'error'));
+    }
+    tools.append(element('h3', '学习数据'));
+    tools.append(element('p', '已有学习备份可在下方导入，不含题库音频。'));
+    const backupRow = element('div', '', 'button-row');
     const usePreferences = document.createElement('input');
     usePreferences.type = 'checkbox';
     usePreferences.setAttribute('aria-label', '同时采用备份中的设置和进度');
@@ -189,31 +200,6 @@ export function mountUi(root, practice) {
     }));
     main.append(wrongBook);
 
-    const offline = element('section', '', 'settings');
-    offline.append(element('h3', '离线使用'));
-    if (state.offline.available) {
-      offline.append(element('p', `题目：${state.offline.questionReady ? '可离线使用' : '尚未准备'} · 音频：${state.offline.audioReadyCount}/${state.offline.audioTotal} 已准备`));
-      const complete = state.offline.questionReady && state.offline.audioReadyCount === state.offline.audioTotal;
-      offline.append(button(state.offline.preparing ? '准备中…' : complete ? '已准备完成' : '准备离线资源',
-        practice.prepareOffline, { disabled: state.offline.preparing || complete }));
-      if (state.offline.preparing) {
-        const progress = document.createElement('progress');
-        progress.max = Math.max(1, state.offline.total);
-        progress.value = state.offline.done;
-        offline.append(progress, element('p', `已处理 ${state.offline.done}/${state.offline.total} 项`));
-      }
-      if (state.offline.failedCount) {
-        offline.append(element('p', `${state.offline.failedCount} 项准备失败，可再次点击准备重试。`, 'error'));
-        for (const failure of state.offline.failures) {
-          offline.append(element('p', `${failure.path}：${failure.reason}`, 'offline-failure'));
-        }
-      }
-    } else {
-      offline.append(element('p', '离线服务尚未就绪。'));
-    }
-    if (state.offline.error) offline.append(element('p', state.offline.error, 'error'));
-    main.append(offline);
-
     const settings = element('section', '', 'settings');
     settings.append(element('h3', '显示设置'));
     const controls = element('div', '', 'button-row');
@@ -224,12 +210,20 @@ export function mountUi(root, practice) {
     );
     settings.append(controls);
     if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
+      const isIPad = /iPad/.test(navigator.userAgent)
+        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const fullscreenButton = button(document.fullscreenElement ? '退出全屏' : '进入全屏', async () => {
         try {
           if (document.fullscreenElement) await document.exitFullscreen();
-          else await document.documentElement.requestFullscreen();
+          else {
+            await document.documentElement.requestFullscreen(isIPad ? { keyboardLock: 'browser' } : undefined);
+            root.tabIndex = -1;
+            root.focus({ preventScroll: true });
+          }
         } catch {
-          fullscreenButton.after(element('p', '无法切换全屏，请通过 Safari 的分享菜单添加到主屏幕后打开。', 'error'));
+          fullscreenButton.after(element('p', isIPad
+            ? '当前 Safari 无法在网页全屏中使用物理键盘，请通过分享菜单添加到主屏幕，再从主屏幕打开。'
+            : '无法切换全屏，请通过 Safari 的分享菜单添加到主屏幕后打开。', 'error'));
         }
       }, { className: 'fullscreen-toggle' });
       settings.append(fullscreenButton);
@@ -336,10 +330,7 @@ export function mountUi(root, practice) {
 
     const header = element('header', '', 'practice-header');
     header.append(button('返回题库', practice.backToBanks, { disabled: state.submitting }));
-    const heading = element('div', '');
-    heading.append(element('h2', state.bank.name));
-    heading.append(element('p', `第 ${question.displayNumber} 题 · ${state.position + 1}/${state.bank.questions.length} · ${question.type === 'multiple' ? '多选' : '单选'}`));
-    header.append(heading);
+    header.append(element('span', `第 ${question.displayNumber} 题 · ${state.position + 1}/${state.bank.questions.length} · ${question.type === 'multiple' ? '多选' : '单选'} · ${state.bank.name}`, 'practice-location'));
     main.append(header);
 
     const content = element('section', '', `practice-content ${showResult
@@ -354,21 +345,30 @@ export function mountUi(root, practice) {
     } else {
       content.append(element('p', question.stem, 'question-stem'));
       const options = element('ul', '', 'question-options');
-      for (const option of question.options) {
-        options.append(element('li', `${option.label}. ${option.text}`));
+      for (const [index, option] of question.options.entries()) {
+        const selected = draft?.selectedOptionIds.includes(option.id) ?? false;
+        const choice = button(`${option.label}. ${option.text}`, () => practice.selectOption(option.id), {
+          disabled: state.submitting,
+          className: `question-option ${selected ? 'selected' : ''} ${state.optionCursor === index ? 'cursor' : ''}`,
+        });
+        choice.setAttribute('aria-pressed', String(selected));
+        const item = document.createElement('li');
+        item.append(choice);
+        options.append(item);
       }
       content.append(options);
     }
     const body = element('div', '', 'practice-body');
     body.append(content);
-    if (state.answerOpen) renderAnswer(body, state, question, draft);
     main.append(body);
+    if (state.error) main.append(element('p', state.error, 'error practice-message'));
+    if (state.notice) main.append(element('p', state.notice, 'hint practice-message'));
 
     const selected = showResult ? result.selectedOptionIds : draft?.selectedOptionIds ?? [];
     const status = element('div', '', 'practice-status');
     status.append(element('span', showResult ? '已提交' : state.submitting ? '保存中…' : '待提交'));
     status.append(element('span', `已选：${selected.length ? answerLabels(question, selected) : '无'}`));
-    if (question.options.length > 6 && state.answerOpen) {
+    if (question.options.length > 6 && !showResult) {
       status.append(element('span', `当前选项：${question.options[state.optionCursor]?.label ?? ''}`));
     }
     status.append(element('span', state.audio.message || (state.audio.status === 'playing'
@@ -377,8 +377,8 @@ export function mountUi(root, practice) {
     main.append(status);
     const keys = state.settings.keyMap;
     main.append(element('p', showResult
-      ? `${keyName(keys.next)} 下一题 · ${keyName(keys.replay)} 重读解析 · ${keyName(keys.previous)} 上一题 · 鼠标滚轮阅读`
-      : `选择 A–F · ${keyName(keys.submit)} 提交 · ${keyName(keys.previous)}/${keyName(keys.next)} 切题 · ${keyName(keys.replay)} 重读 · 鼠标滚轮阅读`, 'action-hint'));
+      ? `${keyName(keys.next)} 下一题 · ${keyName(keys.replay)} 重读解析 · ${keyName(keys.previous)} 上一题 · ⟳/⟲上下移滑轮`
+      : '选择 A–F · Enter 提交 · ←/→切题 · R 重读 ·⟳/⟲上下移滑轮', 'action-hint'));
 
     const actions = element('nav', '', 'practice-actions');
     actions.append(button('上一题', () => practice.move(-1), {
@@ -391,43 +391,13 @@ export function mountUi(root, practice) {
     }));
     actions.append(showResult
       ? button('重新作答', practice.redo, { disabled: state.submitting })
-      : button('回答', practice.openAnswer, { disabled: state.submitting, className: 'primary' }));
+      : button(state.submitting ? '保存中…' : '提交答案', practice.submit, {
+        disabled: state.submitting || !draft?.selectedOptionIds.length, className: 'primary',
+      }));
     actions.append(button(state.position === state.bank.questions.length - 1 ? '已到末题' : '下一题', () => practice.move(1), {
       disabled: state.submitting || state.position === state.bank.questions.length - 1,
     }));
     main.append(actions);
-  }
-
-  function renderAnswer(body, state, question, draft) {
-    const panel = element('section', '', 'answer-panel');
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', `回答第 ${question.displayNumber} 题`);
-    const header = element('div', '', 'answer-header');
-    header.append(element('h3', `回答第 ${question.displayNumber} 题`));
-    const close = button('×', practice.closeAnswer, { disabled: state.submitting });
-    close.setAttribute('aria-label', '关闭');
-    header.append(close);
-    panel.append(header);
-    if (question.type === 'multiple') panel.append(element('p', '多选题，可选多项。'));
-    const options = element('div', '', 'answer-options');
-    for (const option of question.options) {
-      const selected = draft?.selectedOptionIds.includes(option.id) ?? false;
-      const choice = button(option.label,
-        () => practice.selectOption(option.id), {
-          disabled: state.submitting,
-          className: `answer-choice ${selected ? 'selected' : ''} ${state.optionCursor === question.options.indexOf(option) ? 'cursor' : ''}`,
-        });
-      choice.setAttribute('aria-pressed', String(selected));
-      choice.setAttribute('aria-label', `选项 ${option.label}`);
-      options.append(choice);
-    }
-    panel.append(options);
-    if (state.error) panel.append(element('p', state.error, 'error'));
-    panel.append(button(state.submitting ? '保存中…' : '提交答案', practice.submit, {
-      disabled: state.submitting || !draft?.selectedOptionIds.length,
-      className: 'primary submit-answer',
-    }));
-    body.append(panel);
   }
 
   function render(state) {
@@ -437,15 +407,14 @@ export function mountUi(root, practice) {
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
     if (state.screen === 'practice') main.classList.add('practice-page');
-    main.append(element('h1', '刷题', 'app-title'));
+    if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
-    if (state.error && !state.answerOpen) main.append(element('p', state.error, 'error'));
-    if (state.notice) main.append(element('p', state.notice, 'hint'));
-    if (state.offline.updateAvailable) {
+    if (state.error && state.screen !== 'practice') main.append(element('p', state.error, 'error'));
+    if (state.notice && state.screen !== 'practice') main.append(element('p', state.notice, 'hint'));
+    if (state.offline.updateAvailable && state.screen === 'home') {
       const update = element('section', '', 'update-notice');
-      update.append(element('span', state.screen === 'home'
-        ? '新版本已准备好。' : '新版本已准备好，返回题库后可更新。'));
-      if (state.screen === 'home') update.append(button('更新应用', practice.activateUpdate));
+      update.append(element('span', '新版本已准备好。'));
+      update.append(button('更新应用', practice.activateUpdate));
       main.append(update);
     }
     if (state.screen === 'practice' && state.bank) renderPractice(main, state);
@@ -480,7 +449,7 @@ export function mountUi(root, practice) {
     pressed.add(code);
     practice.performAction(action);
   });
-  root.addEventListener('wheel', (event) => {
+  window.addEventListener('wheel', (event) => {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;

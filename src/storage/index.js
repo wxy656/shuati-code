@@ -153,19 +153,6 @@ export function createStorage() {
     await done;
   }
 
-  async function exportBackup() {
-    const db = await database;
-    const names = ['questionStates', 'progress', 'settings', 'wrongBook', 'bankCatalog'];
-    const transaction = db.transaction(names, 'readonly');
-    const [states, positions, settings, wrongBook, catalog] = await Promise.all(
-      names.map((name) => requestResult(transaction.objectStore(name).getAll())));
-    const latest = states.map(({ bankId, questionId, revision, isCorrect, submittedAt }) =>
-      ({ bankId, questionId, revision, isCorrect, submittedAt }));
-    const progress = positions.map(({ bankId, questionId }) => ({ bankId, questionId }));
-    return { schemaVersion: 3, exportedAt: new Date().toISOString(), latest, progress, settings, wrongBook,
-      banks: catalog.map(({ bankId, version, name }) => ({ bankId, version, name })) };
-  }
-
   async function importBackup(backup, includeLocalPreferences = false) {
     if (![2, 3].includes(backup?.schemaVersion) || !Array.isArray(backup.latest) ||
         !Array.isArray(backup.wrongBook)) throw new Error('备份格式不受支持');
@@ -207,5 +194,5 @@ export function createStorage() {
   }
 
   return { readSettings, saveSettings, readBankState, readCatalog, saveCatalog, removeCatalog,
-    setWrong, saveProgress, saveAttempt, resetBank, exportBackup, importBackup };
+    setWrong, saveProgress, saveAttempt, resetBank, importBackup };
 }

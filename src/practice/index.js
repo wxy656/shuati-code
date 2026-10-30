@@ -48,7 +48,7 @@ export function createPractice(offline) {
     results: new Map(), wrong: new Map(), drafts: {}, sessionResult: null, stats: null,
     importing: false, importCount: 0, storageStatus: '',
     settings: { ...defaultSettings }, loading: false, submitting: false,
-    answerOpen: false, error: '', notice: '',
+    error: '', notice: '',
     audio: { status: 'idle', kind: null, message: '' },
     offline: { ...offline.state },
   };
@@ -118,7 +118,6 @@ export function createPractice(offline) {
     state.stats = calculateStats(bank, state.results);
     state.savedQuestionId = saved.progress?.questionId ?? null;
     state.screen = 'home';
-    state.answerOpen = false;
     state.notice = '';
     state.audio = { status: 'idle', kind: null, message: '' };
     offline.selectBank(bank);
@@ -139,7 +138,7 @@ export function createPractice(offline) {
       ]);
       const banks = [...builtIn.filter((item) => !catalog.some((local) => local.bankId === item.bankId)), ...catalog];
       const savedSettings = settings ?? {};
-      const { scrollUp, scrollDown, ...savedKeyMap } = savedSettings.keyMap ?? {};
+      const { scrollUp, scrollDown, cancel, ...savedKeyMap } = savedSettings.keyMap ?? {};
       state.settings = {
         ...defaultSettings, ...savedSettings,
         fontSize: Math.max(32, Math.min(80, savedSettings.fontSize ?? defaultSettings.fontSize)),
@@ -188,7 +187,6 @@ export function createPractice(offline) {
     state.screen = 'practice';
     state.drafts = {};
     state.sessionResult = null;
-    state.answerOpen = true;
     state.error = '';
     state.audio = { status: 'idle', kind: null, message: '' };
     state.savedQuestionId = currentQuestion().id;
@@ -264,7 +262,6 @@ export function createPractice(offline) {
     if (state.submitting) return;
     player.stop();
     state.screen = 'home';
-    state.answerOpen = false;
     state.drafts = {};
     state.sessionResult = null;
     state.error = '';
@@ -304,26 +301,9 @@ export function createPractice(offline) {
     }
   }
 
-  function openAnswer() {
-    const question = currentQuestion();
-    if (!question || state.submitting || currentResult()) return;
-    if (!currentDraft()) {
-      state.drafts = { [question.id]: { revision: question.revision, selectedOptionIds: [] } };
-    }
-    state.answerOpen = true;
-    state.error = '';
-    notify();
-  }
-
-  function closeAnswer() {
-    if (state.submitting) return;
-    state.answerOpen = false;
-    notify();
-  }
-
   function selectOption(optionId) {
     const question = currentQuestion();
-    if (!state.answerOpen || !question?.options.some((option) => option.id === optionId) || state.submitting) return;
+    if (currentResult() || !question?.options.some((option) => option.id === optionId) || state.submitting) return;
     const draft = currentDraft() ?? { revision: question.revision, selectedOptionIds: [] };
     const selectedOptionIds = question.type === 'single'
       ? [optionId]
@@ -372,7 +352,6 @@ export function createPractice(offline) {
         active: true, updatedAt: attempt.submittedAt,
       });
       state.stats = calculateStats(state.bank, state.results);
-      state.answerOpen = false;
       saved = true;
       debugLog('作答已保存', {
         bankId: attempt.bankId,
@@ -395,7 +374,6 @@ export function createPractice(offline) {
     player.stop();
     state.sessionResult = null;
     state.drafts = { [question.id]: { revision: question.revision, selectedOptionIds: [] } };
-    state.answerOpen = true;
     state.optionCursor = 0;
     state.error = '';
     notify();
@@ -417,7 +395,7 @@ export function createPractice(offline) {
   }
 
   function setKeyBinding(action, code) {
-    if (!(action in defaultSettings.keyMap) && !['back', 'redo', 'cancel'].includes(action)) return;
+    if (!(action in defaultSettings.keyMap) && !['back', 'redo'].includes(action)) return;
     const keyMap = { ...state.settings.keyMap };
     for (const name of Object.keys(keyMap)) {
       if (keyMap[name] === code) keyMap[name] = null;
@@ -438,7 +416,7 @@ export function createPractice(offline) {
       case 'optionPrevious':
       case 'optionNext': {
         const length = currentQuestion()?.options.length ?? 0;
-        if (state.answerOpen && length) {
+        if (!currentResult() && length) {
           state.optionCursor = (state.optionCursor + (action === 'optionNext' ? 1 : length - 1)) % length;
           notify();
         }
@@ -455,7 +433,6 @@ export function createPractice(offline) {
       case 'replay': playAudio(currentResult() ? 'explanation' : 'question'); break;
       case 'back': backToBanks(); break;
       case 'redo': redo(); break;
-      case 'cancel': closeAnswer(); break;
     }
   }
 
@@ -466,10 +443,6 @@ export function createPractice(offline) {
   function changeRate(rate) {
     player.setRate(rate);
     updateSettings({ rate });
-  }
-
-  async function exportBackup() {
-    return storage.exportBackup();
   }
 
   async function importBackup(file, includeLocalPreferences) {
@@ -499,7 +472,7 @@ export function createPractice(offline) {
       const persisted = await navigator.storage?.persist?.().catch(() => false);
       const estimate = await navigator.storage?.estimate?.().catch(() => null);
       state.storageStatus = `${estimate ? `本机已使用约 ${Math.round((estimate.usage ?? 0) / 1048576)} MiB；` : ''}${persisted
-        ? '浏览器已允许持久存储。' : '浏览器未承诺永久保留，请保存学习备份。'}`;
+        ? '浏览器已允许持久存储。' : '浏览器未承诺永久保留，学习记录可能丢失。'}`;
       state.notice = `${entry.name} 已导入，本机可离线练习。${previous ? '旧版学习记录仍保留。' : ''}`;
       if (previous && previous.cacheName !== entry.cacheName) await caches.delete(previous.cacheName);
     } catch (error) {
@@ -529,10 +502,10 @@ export function createPractice(offline) {
     state, subscribe: (listener) => listeners.add(listener), currentQuestion, currentResult, currentDraft,
     initialize, selectBank, start, resetFromStart, jumpToNumber, move, backToBanks,
     openWrongBook, closeWrongBook, removeWrong,
-    openAnswer, closeAnswer, selectOption, submit, redo, changeFontSize,
+    selectOption, submit, redo, changeFontSize,
     setKeyBinding, performAction,
     playQuestion: () => playAudio('question'), playExplanation: () => playAudio('explanation'),
-    setAutoPlay, changeRate, exportBackup, importBackup, installBank, deleteLocalBank,
+    setAutoPlay, changeRate, importBackup, installBank, deleteLocalBank,
     prepareOffline: offline.prepare,
     activateUpdate: () => {
       if (state.screen === 'home' && !state.submitting) offline.activateUpdate();
