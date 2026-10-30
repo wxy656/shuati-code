@@ -31,7 +31,7 @@ npm run dev
 
 在仓库 Settings → Pages 将 Source 设为 GitHub Actions 后，推送到 `main` 会运行 `Publish GitHub Pages` 工作流；也可在 Actions 手动运行。访问地址为 `https://wxy656.github.io/shuati-code/`。
 
-当前工作流只发布仓库中的 50 道样例题和音频，不发布本地正式完整题库。正式 ZIP 已在本地生成，GitHub Release 附件尚未发布；管理页的下载入口指向仓库 Releases 页面，发布后可从那里下载。
+50 道样例题和音频已发布到 GitHub Pages；本地正式完整题库不随网页发布。正式 ZIP 已在本地生成，GitHub Release 附件尚未发布；管理页的下载入口指向仓库 Releases 页面，发布后可从那里下载。
 
 ## 本地浏览器验证
 
