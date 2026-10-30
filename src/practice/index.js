@@ -3,13 +3,21 @@ import { createAudioPlayer } from '../audio/index.js';
 import { gradeQuestion } from '../grading/index.js';
 import { createStorage } from '../storage/index.js';
 import { debugLog } from '../debug.js';
+import { importBankZip } from '../banks/import.js';
 
 const defaultSettings = {
-  fontSize: 30,
+  fontSize: 42,
   autoQuestion: true,
   autoExplanation: true,
   rate: 1,
   lastBankId: null,
+  keyMap: {
+    optionA: 'KeyA', optionB: 'KeyB', optionC: 'KeyC',
+    optionD: 'KeyD', optionE: 'KeyE', optionF: 'KeyF',
+    previous: 'ArrowLeft', next: 'ArrowRight', replay: 'KeyR',
+    submit: 'Enter', scrollUp: 'ArrowUp', scrollDown: 'ArrowDown',
+    optionPrevious: null, optionNext: null, optionToggle: null,
+  },
 };
 
 function createAttemptId() {
@@ -44,8 +52,9 @@ export function createPractice(offline) {
   const storage = createStorage();
   const listeners = new Set();
   const state = {
-    banks: [], bank: null, screen: 'home', position: 0,
-    results: new Map(), drafts: {}, stats: null,
+    banks: [], bank: null, screen: 'home', position: 0, optionCursor: 0,
+    results: new Map(), wrong: new Map(), drafts: {}, stats: null,
+    importing: false, importCount: 0, storageStatus: '',
     settings: { ...defaultSettings }, loading: false, submitting: false,
     answerOpen: false, error: '', notice: '',
     audio: { status: 'idle', kind: null, message: '' },
@@ -111,6 +120,7 @@ export function createPractice(offline) {
     const saved = await storage.readBankState(entry.bankId);
     state.bank = bank;
     state.results = new Map(saved.states.map((item) => [item.questionId, item]));
+    state.wrong = new Map(saved.wrong.map((item) => [item.questionId, item]));
     state.drafts = saved.progress?.drafts ?? {};
     state.position = 0;
     state.stats = calculateStats(bank, state.results);
@@ -132,8 +142,16 @@ export function createPractice(offline) {
     state.loading = true;
     notify();
     try {
-      const [settings, banks] = await Promise.all([storage.readSettings(), loadBankIndex()]);
-      state.settings = { ...defaultSettings, ...settings };
+      const [settings, builtIn, catalog] = await Promise.all([
+        storage.readSettings(), loadBankIndex().catch(() => []), storage.readCatalog(),
+      ]);
+      const banks = [...builtIn.filter((item) => !catalog.some((local) => local.bankId === item.bankId)), ...catalog];
+      const savedSettings = settings ?? {};
+      state.settings = {
+        ...defaultSettings, ...savedSettings,
+        fontSize: Math.max(32, Math.min(80, savedSettings.fontSize ?? defaultSettings.fontSize)),
+        keyMap: { ...defaultSettings.keyMap, ...savedSettings.keyMap },
+      };
       state.banks = banks;
       const entry = banks.find((bank) => bank.bankId === state.settings.lastBankId) ?? banks[0];
       if (entry) await loadSelectedBank(entry);
@@ -173,6 +191,7 @@ export function createPractice(offline) {
     if (!state.bank?.questions[position] || state.submitting) return;
     player.stop();
     state.position = position;
+    state.optionCursor = 0;
     state.screen = 'practice';
     state.answerOpen = !currentResult() || Boolean(currentDraft()?.redo);
     state.error = '';
@@ -237,6 +256,37 @@ export function createPractice(offline) {
     notify();
   }
 
+  function openWrongBook() {
+    if (state.screen !== 'home' || !state.bank) return;
+    state.screen = 'wrongBook';
+    state.error = '';
+    notify();
+  }
+
+  function closeWrongBook() {
+    state.screen = 'home';
+    state.error = '';
+    notify();
+  }
+
+  async function removeWrong(questionIds) {
+    const updatedAt = new Date().toISOString();
+    const items = questionIds.map((questionId) => state.wrong.get(questionId))
+      .filter((item) => item?.active)
+      .map((item) => ({ ...item, active: false, updatedAt }));
+    if (!items.length) return;
+    try {
+      await storage.setWrong(items);
+      for (const item of items) state.wrong.set(item.questionId, item);
+      notify();
+      return true;
+    } catch (error) {
+      state.error = `移除错题失败：${error.message}`;
+      notify();
+      return false;
+    }
+  }
+
   function openAnswer() {
     const question = currentQuestion();
     if (!question || state.submitting || (currentResult() && !currentDraft()?.redo)) return;
@@ -257,7 +307,7 @@ export function createPractice(offline) {
 
   function selectOption(optionId) {
     const question = currentQuestion();
-    if (!state.answerOpen || !question || state.submitting) return;
+    if (!state.answerOpen || !question?.options.some((option) => option.id === optionId) || state.submitting) return;
     const draft = currentDraft() ?? { revision: question.revision, selectedOptionIds: [], redo: false };
     const selectedOptionIds = question.type === 'single'
       ? [optionId]
@@ -265,6 +315,7 @@ export function createPractice(offline) {
         ? draft.selectedOptionIds.filter((id) => id !== optionId)
         : [...draft.selectedOptionIds, optionId];
     state.drafts = { ...state.drafts, [question.id]: { ...draft, selectedOptionIds } };
+    state.optionCursor = question.options.findIndex((option) => option.id === optionId);
     pendingAttempt = null;
     state.error = '';
     saveProgress();
@@ -305,6 +356,10 @@ export function createPractice(offline) {
         attemptId: attempt.attemptId, selectedOptionIds: attempt.selectedOptionIds,
         isCorrect: attempt.isCorrect, submittedAt: attempt.submittedAt,
       });
+      if (!attempt.isCorrect) state.wrong.set(question.id, {
+        bankId: attempt.bankId, questionId: question.id, revision: question.revision,
+        active: true, updatedAt: attempt.submittedAt,
+      });
       state.stats = calculateStats(state.bank, state.results);
       state.answerOpen = false;
       pendingAttempt = null;
@@ -330,6 +385,7 @@ export function createPractice(offline) {
     player.stop();
     state.drafts = { ...state.drafts, [question.id]: { revision: question.revision, selectedOptionIds: [], redo: true } };
     state.answerOpen = true;
+    state.optionCursor = 0;
     state.error = '';
     pendingAttempt = null;
     saveProgress();
@@ -348,7 +404,50 @@ export function createPractice(offline) {
   }
 
   function changeFontSize(delta) {
-    updateSettings({ fontSize: Math.max(22, Math.min(42, state.settings.fontSize + delta)) });
+    updateSettings({ fontSize: Math.max(32, Math.min(80, state.settings.fontSize + delta)) });
+  }
+
+  function setKeyBinding(action, code) {
+    if (!(action in defaultSettings.keyMap) && !['back', 'redo', 'cancel'].includes(action)) return;
+    const keyMap = { ...state.settings.keyMap };
+    for (const name of Object.keys(keyMap)) {
+      if (keyMap[name] === code) keyMap[name] = null;
+    }
+    keyMap[action] = code;
+    updateSettings({ keyMap });
+  }
+
+  function performAction(action) {
+    if (state.screen !== 'practice') return;
+    if (action.startsWith('option') && action.length === 7) {
+      const index = action.charCodeAt(6) - 65;
+      const option = currentQuestion()?.options[index];
+      if (option) selectOption(option.id);
+      return;
+    }
+    switch (action) {
+      case 'optionPrevious':
+      case 'optionNext': {
+        const length = currentQuestion()?.options.length ?? 0;
+        if (state.answerOpen && length) {
+          state.optionCursor = (state.optionCursor + (action === 'optionNext' ? 1 : length - 1)) % length;
+          notify();
+        }
+        break;
+      }
+      case 'optionToggle': {
+        const option = currentQuestion()?.options[state.optionCursor];
+        if (option) selectOption(option.id);
+        break;
+      }
+      case 'submit': submit(); break;
+      case 'previous': move(-1); break;
+      case 'next': move(1); break;
+      case 'replay': playAudio(currentResult() && !currentDraft()?.redo ? 'explanation' : 'question'); break;
+      case 'back': backToBanks(); break;
+      case 'redo': redo(); break;
+      case 'cancel': closeAnswer(); break;
+    }
   }
 
   function setAutoPlay(kind, enabled) {
@@ -360,12 +459,71 @@ export function createPractice(offline) {
     updateSettings({ rate });
   }
 
+  async function exportBackup() {
+    return storage.exportBackup();
+  }
+
+  async function importBackup(file, includeLocalPreferences) {
+    const backup = JSON.parse(await file.text());
+    const result = await storage.importBackup(backup, includeLocalPreferences);
+    await initialize();
+    state.notice = `已合并 ${result.added} 条新作答。备份中的题库资源未包含在内，未安装题库需另行导入。`;
+    notify();
+  }
+
+  async function installBank(file) {
+    if (state.screen !== 'home' || state.importing || state.submitting) return;
+    state.importing = true;
+    state.importCount = 0;
+    state.error = '';
+    notify();
+    try {
+      const previous = state.banks.find((item) => item.bankId === state.bank?.bankId && item.local);
+      const entry = await importBankZip(file, storage, (count) => {
+        state.importCount = count;
+        notify();
+      });
+      const builtIn = await loadBankIndex().catch(() => []);
+      const catalog = await storage.readCatalog();
+      state.banks = [...builtIn.filter((item) => !catalog.some((local) => local.bankId === item.bankId)), ...catalog];
+      await loadSelectedBank(entry);
+      const persisted = await navigator.storage?.persist?.().catch(() => false);
+      const estimate = await navigator.storage?.estimate?.().catch(() => null);
+      state.storageStatus = `${estimate ? `本机已使用约 ${Math.round((estimate.usage ?? 0) / 1048576)} MiB；` : ''}${persisted
+        ? '浏览器已允许持久存储。' : '浏览器未承诺永久保留，请保存学习备份。'}`;
+      state.notice = `${entry.name} 已导入，本机可离线练习。${previous ? '旧版学习记录仍保留。' : ''}`;
+      if (previous && previous.cacheName !== entry.cacheName) await caches.delete(previous.cacheName);
+    } catch (error) {
+      state.error = `导入题库失败：${error.message}`;
+    } finally {
+      state.importing = false;
+      notify();
+    }
+  }
+
+  async function deleteLocalBank() {
+    if (!state.bank?.local || state.screen !== 'home' || state.importing) return;
+    const { bankId, cacheName } = state.bank;
+    try {
+      await storage.removeCatalog(bankId);
+      await caches.delete(cacheName);
+      await initialize();
+      state.notice = '本机题库资源已删除，学习记录仍保留。';
+      notify();
+    } catch (error) {
+      state.error = `删除题库失败：${error.message}`;
+      notify();
+    }
+  }
+
   return {
     state, subscribe: (listener) => listeners.add(listener), currentQuestion, currentResult, currentDraft,
     initialize, selectBank, start, jumpToNumber, move, backToBanks,
+    openWrongBook, closeWrongBook, removeWrong,
     openAnswer, closeAnswer, selectOption, submit, redo, changeFontSize,
+    setKeyBinding, performAction,
     playQuestion: () => playAudio('question'), playExplanation: () => playAudio('explanation'),
-    setAutoPlay, changeRate,
+    setAutoPlay, changeRate, exportBackup, importBackup, installBank, deleteLocalBank,
     prepareOffline: offline.prepare,
     activateUpdate: () => {
       if (state.screen === 'home' && !state.submitting) offline.activateUpdate();

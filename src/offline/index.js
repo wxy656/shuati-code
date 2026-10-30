@@ -34,7 +34,21 @@ export function createOffline() {
   }
 
   async function inspect(bank = currentBank) {
-    if (!bank || !state.available) return null;
+    if (!bank) return null;
+    if (bank.local) {
+      const cache = await caches.open(bank.cacheName);
+      const existing = new Set((await cache.keys()).map((request) => request.url));
+      const paths = audioPaths(bank);
+      const missingAudio = paths.filter((path) => !existing.has(resourceUrl(path).href));
+      state.questionReady = existing.has(resourceUrl(bank.dataPath).href);
+      state.audioTotal = paths.length;
+      state.audioReadyCount = paths.length - missingAudio.length;
+      state.error = state.questionReady && !missingAudio.length
+        ? '' : '本机题库资源不完整，请重新导入 ZIP。';
+      notify();
+      return { questionReady: state.questionReady, missingAudio };
+    }
+    if (!state.available) return null;
     const selected = selection;
     const paths = audioPaths(bank);
     try {
@@ -74,7 +88,7 @@ export function createOffline() {
 
   async function prepare() {
     const bank = currentBank;
-    if (!bank || !state.available || state.preparing) return;
+    if (!bank || bank.local || !state.available || state.preparing) return;
     const selected = selection;
     state.preparing = true;
     state.failedCount = 0;

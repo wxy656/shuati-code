@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   base: './',
   build: {
+    copyPublicDir: false,
     rolldownOptions: {
       output: { entryFileNames: 'assets/[name].js' },
     },
@@ -12,6 +14,20 @@ export default defineConfig({
   plugins: [{
     name: 'offline-shell-list',
     generateBundle(_options, bundle) {
+      const sampleRoot = new URL('./public/banks/sample/', import.meta.url);
+      const addPublicFile = (name) => this.emitFile({
+        type: 'asset', fileName: name,
+        source: readFileSync(new URL(`./public/${name}`, import.meta.url)),
+      });
+      const addSample = (directory, relative = '') => {
+        for (const item of readdirSync(directory, { withFileTypes: true })) {
+          const name = join(relative, item.name);
+          if (item.isDirectory()) addSample(new URL(`${item.name}/`, directory), name);
+          else addPublicFile(`banks/sample/${name}`);
+        }
+      };
+      for (const name of ['banks/index.json', 'favicon.svg', 'manifest.webmanifest']) addPublicFile(name);
+      addSample(sampleRoot);
       for (const fileName of ['assets/index-Bjle-BFn.js', 'assets/index-DIOki5y8.js']) {
         this.emitFile({ type: 'asset', fileName, source: bundle['assets/index.js'].code });
       }

@@ -1,6 +1,9 @@
 node_modules/
 dist/
-/public/banks/
+releases/
+/public/banks/*
+!/public/banks/index.json
+!/public/banks/sample/
 .env
 .env.local
 *.log

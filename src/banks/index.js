@@ -7,7 +7,10 @@ export function resourceUrl(path) {
 }
 
 async function readJson(path) {
-  const response = await fetch(resourceUrl(path));
+  const response = path.startsWith('_local-banks/')
+    ? await caches.match(resourceUrl(path))
+    : await fetch(resourceUrl(path));
+  if (!response) throw new Error(`本机题库资源缺失：${path}`);
   if (!response.ok) {
     throw new Error(`无法读取题库资源：${path}（HTTP ${response.status}）`);
   }
@@ -20,7 +23,7 @@ export async function loadBankIndex() {
 }
 
 export async function loadBank(entry) {
-  const key = `${entry.bankId}@${entry.version}`;
+  const key = `${entry.bankId}@${entry.version}@${entry.dataPath}`;
   if (loadedBanks.has(key)) return loadedBanks.get(key);
 
   const data = await readJson(entry.dataPath);

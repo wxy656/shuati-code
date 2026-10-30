@@ -45,6 +45,14 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || !request.url.startsWith(scope)) return;
   event.respondWith((async () => {
+    const local = request.url.slice(scope.length).match(/^_local-banks\/([^/]+)\//);
+    if (local) {
+      const cached = await (await caches.open(`shuati-local-${local[1]}`)).match(request.url);
+      if (!cached) return new Response('本机题库资源缺失', { status: 404 });
+      const range = request.headers.get('Range');
+      return range && new URL(request.url).pathname.endsWith('.mp3')
+        ? audioRange(cached, range) : cached;
+    }
     if (request.mode === 'navigate') {
       try {
         return await fetch(request, { cache: 'reload' });

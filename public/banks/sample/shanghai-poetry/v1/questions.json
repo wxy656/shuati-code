@@ -1,0 +1,1851 @@
+{
+  "bankId": "shanghai-poetry",
+  "version": "v1",
+  "questions": [
+    {
+      "id": "shanghai-poetry-0001",
+      "revision": 1,
+      "displayNumber": "0001",
+      "type": "single",
+      "stem": "以下运用了同一典故的两首诗是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《游烂柯山》和《酬乐天扬州初逢席上见赠》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《登金陵凤凰台》和《游烂柯山》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《锦瑟》和《游烂柯山》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《登金陵凤凰台》和《赤壁》"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "据说西晋时期有一位叫王质的樵夫，有一天上到烂柯山砍柴，正好看到了两位童子在下棋, 由于好奇站在旁边观看，等到棋局结束之后，他手中的镰刀已经生锈了，回到家中才发现世上早 已过去了一百年，可谓是物是人非，这也就是烂柯山和烂柯人的由来。 古人以凤凰为祥瑞，所以凤凰来止往往要造楼筑台，为的是留住那份有关凤凰的辉煌记忆。先 秦时秦穆公为闻箫而来的凤凰筑台。南京的凤凰台也得名于凤凰的亲临，李白所写的凤凰台在今 南京城西南，相传南朝刘宋时，有凤凰在山上出现，因而于山上起台，山称凤凰山，台便称凤凰 台。如果说凤凰是人的想象，那么凤凰台就是人对想象的不舍，有了台的守候，凤凰似乎也有了 依，这是人想留住凤凰的痴念。然而纵有台的守望，凤凰依旧一去不返了，只留下这座空台伴着 江水仍径自东流不息。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0001-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0001-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0002",
+      "revision": 1,
+      "displayNumber": "0002",
+      "type": "single",
+      "stem": "以下为李清照词集的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《乐章集》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《淮海词》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《稼轩长短句》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《漱玉词》"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "《乐章集》— 柳永；《淮海词》 秦观；《稼轩长短句》 一一辛弃疾",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0002-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0002-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0003",
+      "revision": 1,
+      "displayNumber": "0003",
+      "type": "single",
+      "stem": "在十二生肖中，“未”代表的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "马"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "羊"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "猴"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "鸡"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "十二生肖是十二地支的形象化代表,即子(鼠)、丑(牛)、寅(虎)、卯(兔)、辰(龙)、巳(蛇)、 午(马)、未(羊)、申(猴)、酉(鸡)、戌(狗)、亥(猪)",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0003-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0003-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0004",
+      "revision": 1,
+      "displayNumber": "0004",
+      "type": "single",
+      "stem": "下列诗句与“西北望长安，可怜无数山”反映同一时期社会现实的一项是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "商女不知亡国恨，隔江犹唱后庭花。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "夜阑卧听风吹雨，铁马冰河入梦来。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "少陵野老吞声哭，春日潜行曲江曲。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "浩荡离愁白日斜，吟鞭东指即天涯。"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "作者辛弃疾生活在南宋时期。杜牧、杜甫生活在唐朝，龚自珍生活在清朝。只有陆游与辛 弃疾同一时代。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0004-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0004-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0005",
+      "revision": 1,
+      "displayNumber": "0005",
+      "type": "single",
+      "stem": "\"造化钟神秀，阴阳割昏晓\"中\"造化\"指的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "缘分"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "运气"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "制造"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "大自然"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】\"造化钟神秀，阴阳割昏晓\"本句出自唐代诗人杜甫作品《望岳》。 望岳杜甫 (唐代) 岱宗夫如何？齐鲁青未了。造化钟神秀，阴阳割昏晓。 荡胸生层云，决毗入归鸟。会当凌绝顶，一览众山小。 诗意:五岳之首的泰山的怎么样?在齐鲁大地上，那苍翠的美好山色没有尽头。大自然把神奇秀丽 的景象全都汇聚其中，山南山北阴阳分界，晨昏迥然不同。望着那升腾的层层云气，心胸摇荡; 睁大眼晴远望归鸟回旋入山，眼角好像要裂开一样。定要登上那最高峰，俯瞰在泰山面前显得渺 小的群山。 注：岱宗：泰山亦名岱山或岱岳，五岳之首，在今山东省泰安市城北。古代以泰山为五岳之首，诸 山所宗，故又称\"岱宗\"。这里指对泰山的尊称。青:指苍翠、翠绿的美好山色。未了:不尽，不 断。造化:大自然。钟:聚集阴阳:阴指山的北面，阳指山的南面。这里指泰山的南北。割:分。 夸张的说法。昏晓：黄昏和早晨。荡胸：心胸摇荡。曾：同\"层\"，重叠。会：.终当，定要。凌．登 上。凌绝顶，即登上最高峰。小.形容词的意动用法，意思为以….为小，认为．·小\"。这首诗 通过描绘泰山雄伟磅礴的景象，热情赞美了泰山高大巍峨的气势和神奇秀丽的景色，流露出了对 祖国山河的热爱之情，表达了诗人不怕困难、敢攀顶峰、俯视一切的雄心和气概，以及卓然独立、 兼济天下的豪情壮志。一二句写泰山山脉绵延辽阔;三四句写泰山雄峻磅礴；五六句是仔细远望， 见群峰云生，仿佛有归鸟入谷。七八句想象将来登山所见景象，同时抒发自己的抱负。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0005-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0005-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0007",
+      "revision": 1,
+      "displayNumber": "0007",
+      "type": "single",
+      "stem": "杜甫在这首《望岳》中的哪句诗化用了与孔子有关的名言？（)",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "岱宗夫如何？齐鲁青未了。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "造化钟神秀，阴阳割昏晓。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "荡胸生曾云，决毗入归鸟。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "会当凌绝顶，一览众山小。"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】同上，尾联\"会当凌绝顶，一览众山小。\"是化用孔子的名言.\"登泰山而小天 下\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0007-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0007-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0010",
+      "revision": 1,
+      "displayNumber": "0010",
+      "type": "single",
+      "stem": "写下\"三十功名尘与土，八千里路云和月\"表达自己壮志未酬的词人是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "陆游"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "辛弃疾"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "岳飞"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "文天祥"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】本句出自南宋抗金民族英雄岳飞创作的一首词《满江红·写怀》 怒发冲冠，凭栏处、潇潇雨歇。抬望眼，仰天长啸，壮怀激烈。 三十功名尘与土，八千里路云和月。莫等闲，白了少年头，空悲切！ 靖康耻，犹未雪。臣子恨，何时灭!驾长车，踏破贺兰山缺。 壮志饥餐胡虏肉，笑谈渴饮匈奴血。待从头，收拾旧山河，朝天阙。 诗意：我愤怒得头发竖了起来，帽子被顶飞了。独自登高凭栏远眺，骤急的风雨刚刚停歇。抬头 远望天空，禁不住仰天长啸，一片报国之心充满心怀。三十多年来虽已建立一些功名，但如同尘 土微不足道，南北转战八千里，经过多少风云人生。好男儿，要抓紧时间为国建功立业，不要空 空将青春消磨，等年老时徒自悲切。靖康之变的耻辱，至今仍然没有被雪洗。作为国家臣子的愤 恨，何时才能泯灭!我要驾着战车向贺兰山进攻，连贺兰山也要踏为平地。我满怀壮志，打仗饿 了就吃敌人的肉，谈笑渴了就喝敌人的鲜血。待我重新收复旧日山河，再带着捷报向国家报告胜 利的消息！",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0010-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0010-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0014",
+      "revision": 1,
+      "displayNumber": "0014",
+      "type": "single",
+      "stem": "\"居高声自远，非是藉秋风\"描写的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "蝉"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "蟋蟀"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "杜鹃鸟"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "画眉鸟"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人虞世南的《蝉》 垂矮饮清露，流响出疏桐。 居高声自远，非是藉秋风。 译文:蝉垂下像帽缨一样的触角吸吮着清澈甘甜的露水，连续不断地鸣叫声从稀疏的梧桐树枝间 传出。蝉正是因为在高处它的声音才能传得远，并非是凭借秋风的力量。 《蝉》是唐代诗人虞世南创作的一首五言绝句;是一首咏物诗。作者托物寓意，一、二句以蝉的 栖高饮露、蝉声远传暗喻人的清朗俊秀、高标逸韵；三、四句分别用一\"自\"字、\"非\"字，正反相 生，充满张力，表达出对人的内在品格的热情赞美和高度自信。全诗简练传神，比兴巧妙，以秋 蝉高洁傲世的品格自况，耐人寻味。 咏物中尤多寄托，具有浓郁的象征性。如本诗中句句写的是蝉的形体、习性和声音，而句句又暗 示着诗人高洁清远的品行志趣，物我互释，咏物的深层意义是咏人。 虞世南善书法，与欧阳询、褚遂良、薛稷合称\"初唐四大家\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0014-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0014-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0017",
+      "revision": 1,
+      "displayNumber": "0017",
+      "type": "single",
+      "stem": "\"可怜九月初三夜，露似真珠月似弓\"运用了（ ）修辞手法",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "夸张"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "比喻"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "拟人"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "排比"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人白居易作品《基江吟》 一道残阳铺水中，半江瑟瑟半江红。 可怜九月初三夜，露似真珠月似弓。 诗意.残阳倒映在江面上，霞光洒下，波光粼粼;江水一半呈现出深深的碧色，一半呈现出红色。 最可爱的是那九月初三之夜，露珠似颗颗珍珠，朗朗新月形如弯弓。 注释暮江吟：黄昏时分在江边所作的诗。吟：古代诗歌的一种形式。残阳：快落山的太阳的光。 也指晚霞。瑟瑟：原意为碧色珍宝，此处指碧绿色。可怜：可爱。九月初三.农历九月初三的时候。 似:像。真珠:即珍珠。月似弓：农历九月初三，上弦月，其弯如弓。 这是一首写景佳作。诗人选取了红日西沉到新月东升这一段时间里的两组景物进行描写，运用了 新颖巧妙的比喻，创造出和谐、宁静的意境，通过吟咏表现出内心深处的情思和对大自然的热爱 之情。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0017-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0017-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0020",
+      "revision": 1,
+      "displayNumber": "0020",
+      "type": "single",
+      "stem": "词句\"明月别枝惊鹊，清风半夜鸣蝉\"的词牌名是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "蝶恋花"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "西江月"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "沁园春"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "丑奴儿"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】本句出自宋代词人辛弃疾贬官闲居江西时创作的一首吟咏田园风光的词《西 江月·夜行黄沙道中》。 明月别枝惊鹊，清风半夜鸣蝉。稻花香里说丰年，听取蛙声一片。 七八个星天外，两三点雨山前。旧时茅店社林边，路转溪桥忽见。 诗意：皎洁的月光从树枝间掠过，惊飞了枝头喜鹊，清凉的晚风吹来仿佛听见了远处的蝉叫声。 田里稻花飘香，蛙声阵阵，似乎在告诉人们今年是一个丰收年。天边几颗星星忽明忽暗，山前下 起了浙浙沥沥的小雨。往日的小茅草屋还在土地庙的树林旁，道路转过溪水的源头，它便忽然出 现在眼前》。 此词着意描写黄沙岭的夜景.明月清风，疏星稀雨，鹊惊蝉鸣乌，稻花飘香，蛙声一片。全词从 视觉、听觉和嗅觉三方面抒写夏夜的山村风光，情景交融，优美如画，恬静自然，生动逼真， 是宋词中以农村生活为题材的佳作。 西江月是词牌名。茅店是茅草盖的乡村客店。社林是土地庙附近的树林。见同\"现\"，显现的意思。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0020-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0020-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0022",
+      "revision": 1,
+      "displayNumber": "0022",
+      "type": "single",
+      "stem": "以下哪一位不属于\"唐宋八大家\"？（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "柳宗元"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "欧阳修"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "贺知章"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "苏洵"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】唐宋八大家，又称为\"唐宋散文八大家\"，是唐代和宋代八位散文家的合称， 分别为唐代柳宗元、韩愈和宋代欧阳修、苏洵、苏轼、苏辙、王安石、曾巩八位。其中韩愈、 柳宗元是唐代古文运动的领袖，欧阳修、三苏（苏轼、苏辙、苏洵）等四人是宋代古文运动的核 心人物，王安石、曾巩是临川文学的代表人物。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0022-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0022-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0025",
+      "revision": 1,
+      "displayNumber": "0025",
+      "type": "single",
+      "stem": "\"百代文宗\"是唐宋八大家中的",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "韩愈"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "柳宗元"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "苏轼"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "王安石"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】韩愈是八大家之首，有\"文章巨公\"和\"百代文宗\"之名。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0025-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0025-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0026",
+      "revision": 1,
+      "displayNumber": "0026",
+      "type": "single",
+      "stem": "关于\"唐宋八大家\"以下说法错误的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "\"唐宋八大家\"是唐代和宋代八位散文家的合称。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "\"唐宋八大家\"是\"唐宋古文运动\"的倡导者。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "\"唐宋八大家\"之一的苏轼是北宋中期文坛大家。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "\"唐宋八大家\"中，苏轼和曾巩是临川文学的代表人物。"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】临川文学的代表人物是王安石、曾巩。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0026-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0026-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0027",
+      "revision": 1,
+      "displayNumber": "0027",
+      "type": "single",
+      "stem": "关于\"唐宋八大家\"以下说法正确的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "\"唐宋八大家\"是唐代和宋代八位经学家的合称。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "\"唐宋八大家\"是\"唐宋古文运动\"的倡导者。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "\"唐宋八大家\"之一的柳宗元是北宋中期文坛大家。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "\"唐宋八大家\"中，苏轼和曾巩是临川文学的代表人物。"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】A是散文家，C柳宗元是唐朝，D是王安石、曾巩",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0027-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0027-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0028",
+      "revision": 1,
+      "displayNumber": "0028",
+      "type": "single",
+      "stem": "\"河东先生\"是唐宋八大家中的（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "韩愈"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "柳宗元"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "苏轼"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "王安石"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】世称\"柳河东\"、\"河东先生\"的是柳宗元。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0028-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0028-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0029",
+      "revision": 1,
+      "displayNumber": "0029",
+      "type": "single",
+      "stem": "\"半山居士\"是唐宋八大家中的（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "韩愈"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "柳宗元"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "苏轼"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "王安石"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】王安石，字介甫，晚年号半山，人称\"半山居士\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0029-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0029-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0030",
+      "revision": 1,
+      "displayNumber": "0030",
+      "type": "single",
+      "stem": "下列与苏轼身份不符的一项是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "诗人"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "状元"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "美食家"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "书法家"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】苏轼，字子瞻，又字和仲，号\"东坡居士\"，南宋高宗朝，赠太师，追谥号\" 文忠\"，四川眉山人，是北宋著名的文学家、书法家、画家、散文家、词人、诗人，豪放派代表 人物。苏轼在诗、词、散文、书、画等方面取得了很高的成就，是中国数千年历史上被公认文学 艺术造诣最杰出的大家之一。其散文与韩愈并称\"韩潮苏海\"，与欧阳修并称\"欧苏\"，与黄庭坚 并称\"苏黄\"，词与辛弃疾并称\"苏辛\"，被称为\"中国古代第一全才\"。此外，苏轼也是中国历史 上最具盛名的美食家。他发明过一味至今广受欢迎的佳肴.东坡肉。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0030-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0030-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0031",
+      "revision": 1,
+      "displayNumber": "0031",
+      "type": "single",
+      "stem": "\"茶圣\"是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "陆羽"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "徐雷客"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "郦道元"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "严羽"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】一些常用的称号对应名字:茶圣一陆羽茶祖一-神农氏医圣一张仲景 文圣一孔子 武圣一关羽 书圣一王羲之 史圣司马迁 诗圣一杜甫 画圣一吴道子 药圣一李时珍。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0031-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0031-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0036",
+      "revision": 1,
+      "displayNumber": "0036",
+      "type": "single",
+      "stem": "开创中国浪漫主义文学先河的是（）。",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《诗经》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《楚辞》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《古诗十九首》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《左传》"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "《诗经》开创了中国现实主义文学先河。《楚辞》开创了中国浪漫主义文学先河。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0036-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0036-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0038",
+      "revision": 1,
+      "displayNumber": "0038",
+      "type": "single",
+      "stem": "\"大珠小珠落玉盘\"所形容的是下面哪种乐器的演奏声？（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "琵琶"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "古琴"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "古筝"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】\"嘈嘈切切错杂弹，大珠小珠落玉盘。＂本句出自唐代诗人白居易作品《琵 琶行》，是白居易的长篇乐府诗之一。名句\"同是天涯沦落人，相逢何必曾相识!\"也是出自此诗。 此诗通过对琵琶女高超弹奏技艺和她不幸经历的描述，揭露了封建社会官僚腐败、民生凋、 人才埋没等不合理现象，表达了诗人对她的深切同情，也抒发了诗人对自己无辜被贬的愤薄之 情。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0038-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0038-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0039",
+      "revision": 1,
+      "displayNumber": "0039",
+      "type": "single",
+      "stem": "诗句\"爆竹声中一岁除，春风送暖入屠苏\"中\"屠苏\"指的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "春天"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "房子"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "一种酒"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "一种花"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】出自北宋政治家王安石创作的一首七言绝句《元日》。 爆竹声中一岁除，春风送暖入屠苏。 千门万户瞳瞳日，总把新桃换旧符。 这首诗描写新年元日热闹、欢乐和万象更新的动人景象，抒发了作者革新政治的思想感情，充满 欢快及积极向上的奋发精神。元日即春节。屠苏指屠苏酒，饮屠苏酒也是古代过年时的一种习 俗，瞳瞳指太阳升起时光亮而温暖的样子。桃是桃符，也作春联。 A.早开的桃花 B.新的桃符 C.新年的寿桃馒头 D.新鲜的桃子 答案:B",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0039-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0039-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0043",
+      "revision": 1,
+      "displayNumber": "0043",
+      "type": "single",
+      "stem": "如果你穿越到了唐朝，你一定读不到下列哪句诗？（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "千门万户瞳瞳日，总把新桃换旧符。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "劝君更尽一杯酒，西出阳关无故人。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "一骑红尘妃子笑，无人知是荔枝来。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "路人借问遥招手，怕得鱼惊不应人。"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】A出自北宋王安石的《元日》。B出自唐代诗人王维作品《送元二使安 西》。C出自唐代诗人杜牧作品《过华清宫绝句三首》D出自唐代诗人胡令能作品《小儿垂钓》。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0043-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0043-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0044",
+      "revision": 1,
+      "displayNumber": "0044",
+      "type": "single",
+      "stem": "\"黑发不知勤学早，白首方悔读书迟\"出自（ ）的《劝学》。",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "荀子"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "孟郊"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "颜真卿"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "孙权"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】本句出自唐代颜真卿的《劝学》 三更灯火五更鸡，正是男儿读书时。黑发不知勤学早，白首方悔读书迟。 诗意.晚上在灯火下学到三更，五更鸡叫又早起学习，这一早一晚正是男儿读书的好时候。少年 不知道早起勤奋学习，到老了后悔读书少就太迟了。 注释：更:古时夜间计算时间的单位，一夜分五更，每更为两小时。午夜11点到1点为三更。五 更:天快亮时，鸡啼叫。黑发:年少时期，指少年。白首:头发白了，这里指老年。方:才。 《劝学》是唐朝诗人颜真卿所写的一首七言古诗。前两句通过对学习环境描写来表达年少读书时 应该勤奋，后两句通过头发颜色变化来表达年长时时读书已晚。劝勉青少年要珍惜少壮年华，勤 奋学习，有所作为，否则，到老一事无成，后悔已晚。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0044-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0044-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0046",
+      "revision": 1,
+      "displayNumber": "0046",
+      "type": "single",
+      "stem": "\"残灯无焰影幢幢，此夕闻君谪九江\"中\"君\"指的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "刘禹锡"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "白居易"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "韦应物"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "柳宗元"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】本句出自唐代元稹的《闻乐天授江州同马》 残灯无焰影幢幢，此夕闻君谪九江。垂死病中惊坐起，暗风吹雨入寒窗。 诗意：灯火将熄一片昏暗物影在摇漾，今夜忽然听说你被贬谪到九江。大病中我京得基然从床上 坐起，暗夜的风雨吹进窗户，感觉分外寒冷。 注释：授：授职，任命。江州：即九江郡，在今江西省九江市。司马：官名。残灯：快要熄灭的 灯。焰：火苗。幢（chuáng）幢：灯影昏暗摇曳之状。夕：夜。谪：古代官吏因罪被降职或流 放。垂死：病危。 这首诗是元稹得知白居易遭贬之后所写。此诗以景衬情，以景写情，叙事抒情，表现作者对白居 易的一片般殷之情，表达了知道好友被贬后极度震惊和心中的悲凉。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0046-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0046-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0047",
+      "revision": 1,
+      "displayNumber": "0047",
+      "type": "single",
+      "stem": "\"草铺横野（）里，笛弄晚风（）声\"填入诗句中括号里恰当的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "六七 三四"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "三四六七"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "五六 三四"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "三四 五六"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人吕岩的《牧童》 草铺横野六七里，笛弄晚风三四声。归来饱饭黄昏后，不脱蓑衣卧月明。 这首诗展示了一幅鲜活的牧童晚归休憩图，反映了牧童生活的恬静与闲适。表达了诗人内心世界 对远离喧嚣、安然自乐的生活状态的向往。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0047-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0047-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0048",
+      "revision": 1,
+      "displayNumber": "0048",
+      "type": "single",
+      "stem": "\"大漠沙如雪\"的下一句是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "燕山月似钩"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "天涯共此时"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "何时复西归"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "江清月近人"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人李贺作品《马诗》，共23首，这是第5首。 马诗二十三首·其五李贺（唐代） 大漠沙如雪，燕山月似钩。 何当金络脑，快走踏清秋。 诗意:平沙万里，在月光下像铺上一层白的霜雪。连绵的燕山山岭上，一弯明月当空，如弯 钩一般。什么时候才能给它戴上金络头，在秋高气爽的疆场上驰骋，建立功勋呢？ 《马诗》是通过咏马、赞马或慨叹马的命运，来表现志士的奇才异质、远大抱负及不遇于时的感 慨与愤，其表现方法属比体。而这首诗在比兴手法的运用上却特有意味。四句诗，前两句写景， 后两句抒情。景非实地，情是真情；情景相衬，鲜明地表达了诗人意图立功疆场的强烈感情。这 首诗看起来是写马，其实是借马来抒情，抒发诗人怀才不遇，不被统治者赏识，但又热切期望自 己的抱负得以施展，可以为国建立功业。诗句中的金络脑即金络头，用黄金装饰的马笼头。踏是 指走，跑，有\"\"奔驰\"之意。清秋是指清朗的秋天。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0048-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0048-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0051",
+      "revision": 1,
+      "displayNumber": "0051",
+      "type": "single",
+      "stem": "“峨眉山月半轮秋，影入平羌江水流”出自（ ）的诗作。",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "白居易"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "贺知章"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "杜甫"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "李白"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人李白作品《峨眉山月歌》。这是李白初次出四川时创作 的一首依恋家乡山水的诗。 峨眉山月半轮秋，影入平羌江水流。 夜发清溪向三峡，思君不见下渝州。 诗意:高峻的峨眉山前，悬挂着半轮秋月。流动的平羌江上，倒映着清亮月影。夜间乘船出发, 离开清溪直奔三峡。想你却难相见，恋恋不舍去向渝州。 这首诗出自《李太白全集》卷八，是李白年轻时的作品。峨眉山是蜀中大山，也是蜀地的代称。 李白是蜀人，因此峨眉山月也就是故园之月。诗句\"夜发清溪向三峡，思君不见下渝州。“连用了 五个地名，构思精巧，不着痕迹;诗人依次经过的地点是：峨眉山一平羌江一清溪一三峡一渝州。 通过山月和江水展现了一幅千里蜀江行旅图。 注解:半轮秋.半圆的秋月，即上弦月或下弦月。影：月光的影子。平羌:即青衣江，在峨眉山 东北。夜:今夜。发:出发。清溪:指清溪驿。三峡:指长江瞿塘峡、巫峡、西陵峡。君:指峨 眉山月。下：顺流而下。渝州:治所在巴县，今重庆一带",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0051-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0051-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0053",
+      "revision": 1,
+      "displayNumber": "0053",
+      "type": "single",
+      "stem": "以下不是古代中国别称的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "九州"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "赤县"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "神舟"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "荆国"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "解析：【知识小链接】古代中国的别称有神州（也叫赤县神州）、九州、华夏、中夏、中原、函 夏、九牧、九域、中华、海内等。\"中国\"一词最早出现在《诗经》。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0053-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0053-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0054",
+      "revision": 1,
+      "displayNumber": "0054",
+      "type": "single",
+      "stem": "古人所说的\"三不朽\"，语出《左传》，下面不属于\"三不朽\"的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "立德"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "立行"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "立言"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "立功"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】三不朽指立德、立功、立言。出自《左传》据说，历史上能做到这\"三不朽 \"的只有两个半人.一个是孔子，另一个是王阳明，曾国藩只做到了半个\"三不朽\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0054-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0054-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0055",
+      "revision": 1,
+      "displayNumber": "0055",
+      "type": "single",
+      "stem": "以下不属于纪传体断代史的一项是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《史记》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《汉书》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《后汉书》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《三国志》"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】纪传体断代史是以朝代为断限的史书。始创于中国汉朝东汉时期班固所著 的《汉书》。从《史记》到《明史》的二十四史，除了《史记》以外，均为断代史。\"二十四史\" 是中国代24部纪传体史书的统称，分别为：《史记》《汉书》《后汉书》《三国志》《晋书》《宋 曰》《非》《》《牛》《牛》《牛长非》《牛骚》《牛判》《牛》《牛长》《牛 唐书》《新唐书》《旧五代史》《新五代史》《宋史》《辽史》《金史》《元史》《明史》。 A.令堂 B.令尊 C.家严 D.家慈 答案:A 解析：【知识小链接】古人对别人称自己长辈时，一般先冠以\"家\"字，称父亲为家父或家严，母 亲为家母或家慈。称呼别人的家人则冠以\"令\"字，如:称别人的父亲为令尊，别人的母亲为令堂， 别人的儿子为令郎，别人的女儿为令媛或令爱。这是对别人一种尊称，相当于\"你的\"或\"您的\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0055-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0055-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0057",
+      "revision": 1,
+      "displayNumber": "0057",
+      "type": "single",
+      "stem": "下列称呼不当的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "家兄是对自己兄长的称呼。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "令堂是对对方母亲的尊称。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "令爱是对对方子女的称呼。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "先考、先父称已亡故父亲。"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】别人的儿子为令郎，别人的女儿为令媛或令爱。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0057-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0057-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0058",
+      "revision": 1,
+      "displayNumber": "0058",
+      "type": "single",
+      "stem": "清明之前的节气是（）",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "立春"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "春分"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "谷雨"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "小满"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】24节气分别为.立春、雨水、惊蛰、春分、清明、谷雨、立夏、小满、芒 种、夏至、小署、大署、立秋、处署、白露、秋分、寒露、霜降、立冬、小雪、大雪、冬至、小 寒、大寒",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0058-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0058-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0061",
+      "revision": 1,
+      "displayNumber": "0061",
+      "type": "single",
+      "stem": "下列不属于\"二十四节气\"的一项是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "清明"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "白露"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "惊"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "处暑"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】正确应是惊蛰",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0061-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0061-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0063",
+      "revision": 1,
+      "displayNumber": "0063",
+      "type": "single",
+      "stem": "对下面成语所及人物的判断不正确的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "纸上谈兵一一孙"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "一字千金"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "洛阳纸贵"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "望梅止渴"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "解析：【知识小链接】纸上谈兵:在纸面上谈论打仗。比喻空谈理论，不能解决实际问题。出自《史 记廉颇蔺相如列传》。主人公是赵括。 赵括是战国时期赵国的将军，赵国名将赵奢的儿子。自幼熟读兵书，对于战法理论知识连父亲赵 奢都颇有不如，但赵奢认为儿子只会纸上谈兵，根本不会在实战中取胜。后来秦赵长平之战，赵 括果然惨败，自己战死，四十万赵军被秦军活埋。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0063-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0063-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0064",
+      "revision": 1,
+      "displayNumber": "0064",
+      "type": "single",
+      "stem": "曾使\"洛阳纸贵\"的作品是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "曹植的《洛神赋》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "左思的《三都赋》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "司马相如的《长门赋》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "张衡的《二京赋》"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】\"洛阳纸贵\"原义是晋代左思《三都赋》写成之后，抄写的人非常多，洛阳 的纸因此都涨价了;后比喻著作广泛流传，风行一时；\"洛阳纸贵\"强调的是文章写得好；",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0064-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0064-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0065",
+      "revision": 1,
+      "displayNumber": "0065",
+      "type": "single",
+      "stem": "被英国科学史家李约瑟评价为\"中国科学史上的里程碑\"的著作是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《梦溪笔谈》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《天工开物》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《齐民要术》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《农政全书》"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】《梦溪笔谈》是我国北宋大科学家沈括的传世著作，其中所记述的许多科 学成就均达到了当时世界的最高水平。该书是中国古代八大科学名著之首，被誉为\"中国科学史 上的里程碑\"\"中国科学史上的坐标\"。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0065-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0065-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0066",
+      "revision": 1,
+      "displayNumber": "0066",
+      "type": "single",
+      "stem": "下面为作者登乐游原后而作的诗句是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "念天地之悠悠，独怆然而涕下。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "白日依山尽，黄河入海流。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "夕阳无限好，只是近黄昏。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "日照香炉生紫烟，遥看瀑布挂前川。"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】乐游原在长安（今西安）城南，地势较高，是唐代的游览胜地。李商隐《登 乐游原》 向晚意不适，驱车登古原。 夕阳无限好，只是近黄昏。 李商隐身处的晚唐，总有一种极致奢华过后的颜废感，故而此诗理解为李商隐对唐帝国的感叹。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0066-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0066-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0068",
+      "revision": 1,
+      "displayNumber": "0068",
+      "type": "single",
+      "stem": "\"三月不知肉味\"原为孔子用来形容（ ）的独特魅力。",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "书籍"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "绘画"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "音乐"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "美食"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】三月不知肉味原为孔子用来形容音乐的独特魅力。孔子在齐国的时候听到 了《韶》乐，被深深吸引，以至于三月不知肉味。该句出自春秋时期孔子的《论语·述而》。 现亦用以形容清贫，三个月没有吃过肉。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0068-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0068-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0069",
+      "revision": 1,
+      "displayNumber": "0069",
+      "type": "single",
+      "stem": "有\"孤篇横绝全唐\"之誉的一首初唐诗是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《春江花月夜》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《送杜少府之任蜀州》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《登幽州台歌》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《滕王阁诗》"
+        }
+      ],
+      "correctOptionIds": [
+        "a"
+      ],
+      "explanation": "【知识小链接】张若虚的《春江花月夜》，诗融蜻情于景，凭借对自然之景的描绘，探索 宇宙和人生哲理，在中国古代诗歌史上具有里程碑式的意义。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0069-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0069-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0070",
+      "revision": 1,
+      "displayNumber": "0070",
+      "type": "single",
+      "stem": "千古名句\"海上生明月，天涯共此时。\"出自（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《琵琶行》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《望月怀远》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《水调歌头》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《春江花月夜》"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】本句出自唐代诗人张九龄作品《望月怀远》。此诗是望月怀思的名篇，是 作者在离乡时，望月而思念远方亲人而写的。起句\"海上生明月\"意境雄浑阔大，是千古佳句。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0070-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0070-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0072",
+      "revision": 1,
+      "displayNumber": "0072",
+      "type": "single",
+      "stem": "愿将腰下剑，直为斩（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "敌顽"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "单于"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "于阗"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "楼兰"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "解析：【知识小链接】本句出自《塞下曲六首》，是唐代大诗人李白的组诗作品。 塞下曲六首·其一 五月天山雪，无花只有寒。笛中闻折柳，春色未曾看。 晓战随金鼓，宵眠抱玉鞍。愿将腰下剑，直为斩楼兰。 诗意：五月的天山仍是满山飘雪，只有凛的寒气，根本看不见花草。只有在笛声《折杨柳》曲中 才能想象到春光,而现实中从来就没有见过春天。战士们白天在金鼓声中与敌人进行殊死的战斗, 晚上却是抱着马鞍睡觉。但愿腰间悬挂的宝剑，能够早日平定边疆，为国立功。 注释：天山：指祁连山。折柳：即《折杨柳》，古乐曲名。金鼓：指锣，进军时击鼓，退军时鸣金。 斩楼兰出自《汉书·傅介子传》。 《塞下曲六首》是唐代诗人李白的组诗作品。六首诗借用唐代流行的乐府题目而写时事与心声， 其主题是要求平定边患。全组诗以乐观高亢的基调和雄浑壮美的意境反映了盛唐的精神风貌，描 绘了守边将士在沙场上征战的艰苦生活，歌颂了他们忠心报国的英勇精神。诗中有对战斗场景的 描述，也有对闺中柔情的抒写，内容丰富，意境浑成，格调昂扬，豪气充溢，表现了诗人高尚的 爱国情操。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0072-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0072-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0074",
+      "revision": 1,
+      "displayNumber": "0074",
+      "type": "single",
+      "stem": "\"功成画麟阁，独有霍姚\"中的\"霍姚\"指的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "霍光"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "李广"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "霍去病"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "卫青"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】本句出自《塞下曲六首》，是唐代大诗人李白的组诗作品。 塞下曲六首·其三 骏马似风飙，鸣鞭出渭桥。弯弓辞汉月，插羽破天骄。 阵解星芒尽，营空海雾消。功成画麟阁，独有霍姚。 诗意：骏马像一阵旋风驰骋，战士们鸣鞭纵马出了渭桥。背着弓箭辞别了汉地的明月，在战场上 弯弓射箭打败了胡人。战争结束后天上的客星也为之暗淡，军营渐空，海雾已消。功成之后，在 麒麟阁的功臣像上，却只有霍姚的画像。 注解:鸣鞭:马鞭挥动时发出声响。渭桥：在长安西北渭水上。天骄:指匈奴。海雾:沙漠上的雾气， 指战争的气氛。麟阁:即麒麟阁。霍挑:即霍去病。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0074-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0074-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0075",
+      "revision": 1,
+      "displayNumber": "0075",
+      "type": "single",
+      "stem": "从题材上看，崔颢的《黄鹤楼》是一首（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "送别诗"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "七言律诗"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "游仙诗"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "思乡诗"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】 《黄鹤楼》崔景（唐代） 昔人已乘黄鹤去，此地空余黄鹤楼。黄鹤一去不复返，白云千载空悠悠。 晴川历历汉阳树，芳草萋萋鹦鹉洲。日暮乡关何处是?烟波江上使人愁。 译文:过去的仙人已经驾着黄鹤飞走了，只留下空荡荡的黄鹤楼。黄鹤一去再也没有回来，千百 年 来只看见白云悠悠。阳光照耀下的汉阳树木清晰可见，更能看清芳草繁茂的婴鹉洲。暮色渐渐漫 起，哪里是我的家乡?江面烟波渺渺让人更生烦愁。 此诗描写了作者在黄鹤楼上远眺的美好景色，是一首怀古思乡之佳作。前四句写登临怀古，后四 句写站在黄鹤楼上的所见所思。 诗歌从题材上分为.山水诗、田园诗、咏史诗、怀古诗、边塞诗、闺怨诗、羁旅诗等。这首诗的 题 材是怀古思乡诗。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0075-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0075-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0077",
+      "revision": 1,
+      "displayNumber": "0077",
+      "type": "single",
+      "stem": "\"天下才有一石，曹子建独占八斗\"中的\"曹子建\"指的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "曹操"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "曹不"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "曹植"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "曹冲"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】这句话出自南宋著名文学家谢灵运，此人才华横溢，诗文歌赋都被推为当 世的精妙之作。而谢灵运本人也很自负，他曾经说.\"天下的文才共有一石（dàn），曹植才高无 双，独自占有八斗，我占有一斗。天下其他的人共分另外一斗。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0077-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0077-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0079",
+      "revision": 1,
+      "displayNumber": "0079",
+      "type": "single",
+      "stem": "\"鸡犬之声相闻，老死不相往来\"一语出自（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《易经》"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《老子》"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《庄子》"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《列子》"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】本句出自《老子》．\"邻国相望，鸡犬之声相闻，民至老死不相往来。\"意思 是说相邻的两个国家彼此可以望见,两国鸡狗的叫声都可以听见,各自吃自己的国家丰富的食物， 穿自己的衣服，按照自己的风俗生活，直到老死都不发动战争。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0079-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0079-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0080",
+      "revision": 1,
+      "displayNumber": "0080",
+      "type": "single",
+      "stem": "以下词句出自南唐后主李煜的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "知否?知否?应是绿肥红瘦。"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "但愿人长久，干里共婵娟。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "今宵酒醒何处?杨柳岸，晓风残月。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "问君能有几多愁，恰似一江春水向东流。"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】A出自李清照《如梦令·昨夜雨疏风骤》，B出自苏轼《水调歌头·明月几 时有》出自柳永《雨霖铃·寒蝉凄切》，D出自李煜《虞美人·春花秋月何时了》",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0080-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0080-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0081",
+      "revision": 1,
+      "displayNumber": "0081",
+      "type": "single",
+      "stem": "以下著名诗人的合称不正确的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "李白、杜甫合称\"李杜\""
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "苏轼、黄庭坚合称\"苏黄\""
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "王之涣、孟浩然合称\"王孟\""
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "元稹、白居易合称\"元白\""
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】李白和杜甫为\"大李杜\"，也称\"李杜\"，李商隐和杜牧为\"小李杜\"，苏轼、 黄庭坚合称\"苏黄\"，元稹、白居易合称\"元白\"，孟浩然与王维合称为\"王孟\"。王之涣与岑参, 高适，王昌龄为我国唐代著名的四大边塞诗人。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0081-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0081-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0082",
+      "revision": 1,
+      "displayNumber": "0082",
+      "type": "single",
+      "stem": "以善于描写边塞风光著称的诗人是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "李商隐"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "柳宗元"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "白居易"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "王昌龄"
+        }
+      ],
+      "correctOptionIds": [
+        "d"
+      ],
+      "explanation": "【知识小链接】王昌龄是我国唐代著名的边塞诗人，善于描写边塞风光。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0082-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0082-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0087",
+      "revision": 1,
+      "displayNumber": "0087",
+      "type": "single",
+      "stem": "以下四首作品，朝代、作者全部对应正确的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "《念奴桥·赤壁怀古》【宋】辛弃疾"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "《南乡子·登京口北固亭有怀》【宋】苏轼"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "《卖花声·怀古》【元】张可久"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "《山坡羊·潼关怀古》【清】张养浩"
+        }
+      ],
+      "correctOptionIds": [
+        "c"
+      ],
+      "explanation": "【知识小链接】《念奴桥·赤壁怀古》的作者是苏轼，字子瞻，号东坡居士，是宋代文学 最高成就的代表，其诗善用夸张比喻，独具风格，与黄庭坚并称\"苏黄\"，其词开放豪迈，与辛 弃疾并称\"劳辛\"，其散文著述宏富，豪放自如，与欧阳修并称\"欧苏\"，为\"唐宋八大家\"之一。本 词首句大江东去，浪淘尽，千古风流人物。 《南乡子·登京口北固亭有怀》的作者是辛弃疾，这是一首怀古诗，这首诗中，简简单单引用了 三国时期的几个典故，表面夸赞了曹操、刘备、孙权等三个人，实际上更是利用对袁绍的不屑， 表现对金人的藐视，通过对刘表父子的讽刺，借以抒发自己对南宋投降派不思进取的批判。 《卖花声·怀古》的作者是张可久，这首曲慨叹秦汉时统治者之间的战争和各民族间的战争，给 老百姓造成了深重的灾难，表现了作者同情人民的思想感情。 《山坡羊·潼关怀古》的作者是张养浩，朝代是元，此曲抚今追昔，由历代王朝的兴衰引到人民 百 姓的苦难，一针见血地点出了封建统治与人民的对立,表现了作者对历史的思索和对人民的同情。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0087-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0087-explanation.mp3"
+      }
+    },
+    {
+      "id": "shanghai-poetry-0088",
+      "revision": 1,
+      "displayNumber": "0088",
+      "type": "single",
+      "stem": "以下与“赤壁”相关的诗（词）中，对应作者不正确的是（",
+      "options": [
+        {
+          "id": "a",
+          "label": "A",
+          "text": "东风不与周郎便，铜雀春深锁二乔。-"
+        },
+        {
+          "id": "b",
+          "label": "B",
+          "text": "大江东去，浪淘尽，千古风流人物。"
+        },
+        {
+          "id": "c",
+          "label": "C",
+          "text": "新破荆州得水军，鼓行夏口气如云。"
+        },
+        {
+          "id": "d",
+          "label": "D",
+          "text": "踏碎铁鞋三百，不在危峰绝壁。一"
+        }
+      ],
+      "correctOptionIds": [
+        "b"
+      ],
+      "explanation": "【知识小链接】B出自宋代文学家苏轼的词作《念奴娇·赤壁怀古》，苏子由一般指苏辙, 是苏轼的弟弟。",
+      "audio": {
+        "question": "banks/sample/shanghai-poetry/v1/audio/0088-question.mp3",
+        "explanation": "banks/sample/shanghai-poetry/v1/audio/0088-explanation.mp3"
+      }
+    }
+  ]
+}

@@ -98,6 +98,44 @@ p {
   margin-top: 0.75rem;
 }
 
+.key-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem;
+}
+
+.key-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  background: #eef3f7;
+  border-radius: 0.5rem;
+}
+
+.wrong-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.wrong-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #c6cdd4;
+  border-radius: 0.5rem;
+}
+
+.wrong-item input {
+  width: 1.3rem;
+  height: 1.3rem;
+  flex: none;
+}
+
 .offline-failure {
   overflow-wrap: anywhere;
   font-size: 0.85rem;
@@ -152,10 +190,22 @@ select {
   flex: 1;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow-y: auto;
   background: white;
   border-radius: 0.75rem;
   padding: clamp(1rem, 2vw, 2rem);
+}
+
+.practice-status {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.action-hint {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .question-stem {
@@ -174,11 +224,6 @@ select {
 
 .practice-actions {
   justify-content: space-between;
-}
-
-.audio-status {
-  margin: 0;
-  font-size: 0.9rem;
 }
 
 .result-view h3 {
@@ -241,6 +286,11 @@ select {
   border-color: #1261a0;
   background: #dceeff;
   font-weight: 700;
+}
+
+.answer-choice.cursor {
+  outline: 3px solid #e08b12;
+  outline-offset: 2px;
 }
 
 .submit-answer {
