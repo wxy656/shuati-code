@@ -34,7 +34,6 @@ function keyName(code) {
 }
 
 export function mountUi(root, practice) {
-  const pressed = new Set();
   let capturingAction = null;
   let keyFeedback = '';
   let dataFeedback = '';
@@ -427,10 +426,15 @@ export function mountUi(root, practice) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
       focused?.focus({ preventScroll: true });
     }
+    if ((state.screen === 'practice' || capturingAction) && !root.contains(document.activeElement)) {
+      root.tabIndex = -1;
+      root.focus({ preventScroll: true });
+    }
   }
 
   window.addEventListener('keydown', (event) => {
     const code = event.code && event.code !== 'Unidentified' ? event.code : event.key;
+    const keyCode = /^[a-z]$/i.test(event.key) ? `Key${event.key.toUpperCase()}` : event.key;
     if (capturingAction && practice.state.screen === 'home') {
       if (event.repeat || ['Shift', 'Control', 'Alt', 'Meta'].includes(event.key)) return;
       event.preventDefault();
@@ -442,11 +446,12 @@ export function mountUi(root, practice) {
     }
     if (practice.state.screen !== 'practice') return;
     if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
-    const action = Object.entries(practice.state.settings.keyMap).find(([, mapped]) => mapped === code)?.[0];
+    const bindings = Object.entries(practice.state.settings.keyMap);
+    const action = bindings.find(([, mapped]) => mapped === code)?.[0]
+      ?? bindings.find(([, mapped]) => mapped === keyCode)?.[0];
     if (!action) return;
     event.preventDefault();
-    if (event.repeat || pressed.has(code)) return;
-    pressed.add(code);
+    if (event.repeat) return;
     practice.performAction(action);
   });
   window.addEventListener('wheel', (event) => {
@@ -456,8 +461,6 @@ export function mountUi(root, practice) {
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }, { passive: false });
-  window.addEventListener('keyup', (event) => pressed.delete(event.code && event.code !== 'Unidentified' ? event.code : event.key));
-  window.addEventListener('blur', () => pressed.clear());
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
