@@ -22,7 +22,7 @@ const keyActions = [
   ['optionA', '选择 A'], ['optionB', '选择 B'], ['optionC', '选择 C'],
   ['optionD', '选择 D'], ['optionE', '选择 E'], ['optionF', '选择 F'],
   ['previous', '上一题'], ['next', '下一题'], ['replay', '重读'],
-  ['submit', '提交'], ['scrollUp', '向上阅读'], ['scrollDown', '向下阅读'],
+  ['submit', '提交'],
   ['optionPrevious', '上一选项（可选）'], ['optionNext', '下一选项（可选）'],
   ['optionToggle', '勾选当前选项（可选）'],
   ['back', '返回题库'], ['redo', '重新作答'], ['cancel', '关闭回答'],
@@ -377,8 +377,8 @@ export function mountUi(root, practice) {
     main.append(status);
     const keys = state.settings.keyMap;
     main.append(element('p', showResult
-      ? `${keyName(keys.next)} 下一题 · ${keyName(keys.replay)} 重读解析 · ${keyName(keys.previous)} 上一题`
-      : `选择 A–F · ${keyName(keys.submit)} 提交 · ${keyName(keys.previous)}/${keyName(keys.next)} 切题 · ${keyName(keys.replay)} 重读 · ${keyName(keys.scrollUp)}/${keyName(keys.scrollDown)} 阅读`, 'action-hint'));
+      ? `${keyName(keys.next)} 下一题 · ${keyName(keys.replay)} 重读解析 · ${keyName(keys.previous)} 上一题 · 鼠标滚轮阅读`
+      : `选择 A–F · ${keyName(keys.submit)} 提交 · ${keyName(keys.previous)}/${keyName(keys.next)} 切题 · ${keyName(keys.replay)} 重读 · 鼠标滚轮阅读`, 'action-hint'));
 
     const actions = element('nav', '', 'practice-actions');
     actions.append(button('上一题', () => practice.move(-1), {
@@ -478,13 +478,15 @@ export function mountUi(root, practice) {
     event.preventDefault();
     if (event.repeat || pressed.has(code)) return;
     pressed.add(code);
-    if (action === 'scrollUp' || action === 'scrollDown') {
-      const content = root.querySelector('.practice-content');
-      content?.scrollBy({ top: content.clientHeight * (action === 'scrollUp' ? -0.65 : 0.65) });
-    } else {
-      practice.performAction(action);
-    }
+    practice.performAction(action);
   });
+  root.addEventListener('wheel', (event) => {
+    if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
+    const content = root.querySelector('.practice-content');
+    if (!content) return;
+    event.preventDefault();
+    content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
+  }, { passive: false });
   window.addEventListener('keyup', (event) => pressed.delete(event.code && event.code !== 'Unidentified' ? event.code : event.key));
   window.addEventListener('blur', () => pressed.clear());
   document.addEventListener('fullscreenchange', () => {
