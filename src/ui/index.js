@@ -46,8 +46,8 @@ export function mountUi(root, practice) {
     const tools = element('section', '', 'settings');
     tools.append(element('h3', '题库与学习数据'));
     tools.append(element('p', '正式题库 ZIP 下载到“文件”后，在这里选择导入；学习备份只含记录，不含题库音频。'));
-    const release = element('a', '正式题库下载页（发布后提供 ZIP）');
-    release.href = 'https://github.com/wxy656/shuati-code/releases';
+    const release = element('a', '下载完整题库 ZIP（v1，1499 题，约 191 MiB）');
+    release.href = 'https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip';
     release.target = '_blank';
     release.rel = 'noopener noreferrer';
     tools.append(release);

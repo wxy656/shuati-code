@@ -31,7 +31,7 @@ npm run dev
 
 在仓库 Settings → Pages 将 Source 设为 GitHub Actions 后，推送到 `main` 会运行 `Publish GitHub Pages` 工作流；也可在 Actions 手动运行。访问地址为 `https://wxy656.github.io/shuati-code/`。
 
-50 道样例题和音频已发布到 GitHub Pages；本地正式完整题库不随网页发布。正式 ZIP 已在本地生成，GitHub Release 附件尚未发布；管理页的下载入口指向仓库 Releases 页面，发布后可从那里下载。
+50 道样例题和音频已发布到 GitHub Pages；正式完整题库不随网页发布。[正式题库 v1 ZIP](https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip) 已作为 GitHub Release 附件发布，包含 1499 题和 2998 段音频。下载到 iPad“文件”后，在管理页选择该 ZIP 导入，无需解压。
 
 ## 本地浏览器验证
 
