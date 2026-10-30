@@ -113,15 +113,12 @@ export function createStorage() {
 
   async function saveAttempt(attempt, progress) {
     const db = await database;
-    const transaction = db.transaction(['attempts', 'questionStates', 'progress', 'wrongBook'], 'readwrite');
+    const transaction = db.transaction(['questionStates', 'progress', 'wrongBook'], 'readwrite');
     const done = transactionDone(transaction);
-    transaction.objectStore('attempts').put(attempt);
     transaction.objectStore('questionStates').put({
       bankId: attempt.bankId,
       questionId: attempt.questionId,
       revision: attempt.revision,
-      attemptId: attempt.attemptId,
-      selectedOptionIds: attempt.selectedOptionIds,
       isCorrect: attempt.isCorrect,
       submittedAt: attempt.submittedAt,
     });
@@ -132,42 +129,63 @@ export function createStorage() {
     });
     await done;
     debugLog('作答写入', {
-      attemptId: attempt.attemptId, bankId: attempt.bankId, questionId: attempt.questionId,
-      selectedOptionIds: attempt.selectedOptionIds, isCorrect: attempt.isCorrect,
+      bankId: attempt.bankId, questionId: attempt.questionId, isCorrect: attempt.isCorrect,
       progressQuestionId: progress.questionId,
     });
   }
 
+  async function resetBank(bankId, questionId) {
+    const db = await database;
+    const transaction = db.transaction(['attempts', 'questionStates', 'progress', 'wrongBook'], 'readwrite');
+    const done = transactionDone(transaction);
+    transaction.objectStore('progress').put({ bankId, questionId });
+    transaction.objectStore('questionStates').index('bankId').openCursor(bankId).onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) { cursor.delete(); cursor.continue(); }
+    };
+    for (const name of ['attempts', 'wrongBook']) {
+      transaction.objectStore(name).openCursor().onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          if (cursor.value.bankId === bankId) cursor.delete();
+          cursor.continue();
+        }
+      };
+    }
+    await done;
+  }
+
   async function exportBackup() {
     const db = await database;
-    const names = ['attempts', 'questionStates', 'progress', 'settings', 'wrongBook', 'bankCatalog'];
+    const names = ['questionStates', 'progress', 'settings', 'wrongBook', 'bankCatalog'];
     const transaction = db.transaction(names, 'readonly');
-    const [attempts, latest, progress, settings, wrongBook, catalog] = await Promise.all(
+    const [states, positions, settings, wrongBook, catalog] = await Promise.all(
       names.map((name) => requestResult(transaction.objectStore(name).getAll())));
-    return { schemaVersion: 2, exportedAt: new Date().toISOString(), attempts, latest,
-      progress, settings, wrongBook,
+    const latest = states.map(({ bankId, questionId, revision, isCorrect, submittedAt }) =>
+      ({ bankId, questionId, revision, isCorrect, submittedAt }));
+    const progress = positions.map(({ bankId, questionId }) => ({ bankId, questionId }));
+    return { schemaVersion: 3, exportedAt: new Date().toISOString(), latest, progress, settings, wrongBook,
       banks: catalog.map(({ bankId, version, name }) => ({ bankId, version, name })) };
   }
 
   async function importBackup(backup, includeLocalPreferences = false) {
-    if (backup?.schemaVersion !== 2 || !Array.isArray(backup.attempts) ||
+    if (![2, 3].includes(backup?.schemaVersion) || !Array.isArray(backup.latest) ||
         !Array.isArray(backup.wrongBook)) throw new Error('备份格式不受支持');
     const db = await database;
-    const read = db.transaction(['attempts', 'wrongBook', 'progress', 'settings'], 'readonly');
-    const [oldAttempts, oldWrong] = await Promise.all([
-      requestResult(read.objectStore('attempts').getAll()),
+    const read = db.transaction(['questionStates', 'wrongBook'], 'readonly');
+    const [oldStates, oldWrong] = await Promise.all([
+      requestResult(read.objectStore('questionStates').getAll()),
       requestResult(read.objectStore('wrongBook').getAll()),
     ]);
-    const attempts = new Map(oldAttempts.map((item) => [item.attemptId, item]));
-    for (const item of backup.attempts) {
-      if (item.attemptId && item.bankId && item.questionId) attempts.set(item.attemptId, attempts.get(item.attemptId) ?? item);
-    }
     const latest = new Map();
-    for (const item of attempts.values()) {
+    for (const item of [...oldStates, ...backup.latest]) {
+      if (!item.bankId || !item.questionId || typeof item.isCorrect !== 'boolean') continue;
       const key = `${item.bankId}\u0000${item.questionId}`;
       const previous = latest.get(key);
-      if (!previous || item.submittedAt > previous.submittedAt ||
-          (item.submittedAt === previous.submittedAt && item.attemptId > previous.attemptId)) latest.set(key, item);
+      if (!previous || item.submittedAt > previous.submittedAt) latest.set(key, {
+        bankId: item.bankId, questionId: item.questionId, revision: item.revision,
+        isCorrect: item.isCorrect, submittedAt: item.submittedAt,
+      });
     }
     const wrong = new Map(oldWrong.map((item) => [`${item.bankId}\u0000${item.questionId}`, item]));
     for (const item of backup.wrongBook) {
@@ -175,24 +193,21 @@ export function createStorage() {
       const key = `${item.bankId}\u0000${item.questionId}`;
       if (!wrong.has(key) || item.updatedAt > wrong.get(key).updatedAt) wrong.set(key, item);
     }
-    const names = ['attempts', 'questionStates', 'wrongBook', ...(includeLocalPreferences ? ['progress', 'settings'] : [])];
+    const names = ['questionStates', 'wrongBook', ...(includeLocalPreferences ? ['progress', 'settings'] : [])];
     const transaction = db.transaction(names, 'readwrite');
     const done = transactionDone(transaction);
-    for (const item of attempts.values()) transaction.objectStore('attempts').put(item);
-    for (const item of latest.values()) transaction.objectStore('questionStates').put({
-      bankId: item.bankId, questionId: item.questionId, revision: item.revision,
-      attemptId: item.attemptId, selectedOptionIds: item.selectedOptionIds,
-      isCorrect: item.isCorrect, submittedAt: item.submittedAt,
-    });
+    for (const item of latest.values()) transaction.objectStore('questionStates').put(item);
     for (const item of wrong.values()) transaction.objectStore('wrongBook').put(item);
     if (includeLocalPreferences) {
-      for (const item of backup.progress ?? []) transaction.objectStore('progress').put(item);
+      for (const { bankId, questionId } of backup.progress ?? []) {
+        transaction.objectStore('progress').put({ bankId, questionId });
+      }
       for (const item of backup.settings ?? []) transaction.objectStore('settings').put(item);
     }
     await done;
-    return { added: attempts.size - oldAttempts.length, banks: [...new Set([...attempts.values()].map((item) => item.bankId))] };
+    return { added: latest.size - oldStates.length };
   }
 
   return { readSettings, saveSettings, readBankState, readCatalog, saveCatalog, removeCatalog,
-    setWrong, saveProgress, saveAttempt, exportBackup, importBackup };
+    setWrong, saveProgress, saveAttempt, resetBank, exportBackup, importBackup };
 }

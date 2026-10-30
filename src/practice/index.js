@@ -20,14 +20,6 @@ const defaultSettings = {
   },
 };
 
-function createAttemptId() {
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-}
-
 function calculateStats(bank, results) {
   let correct = 0;
   let incorrect = 0;
@@ -53,7 +45,7 @@ export function createPractice(offline) {
   const listeners = new Set();
   const state = {
     banks: [], bank: null, screen: 'home', position: 0, optionCursor: 0,
-    results: new Map(), wrong: new Map(), drafts: {}, stats: null,
+    results: new Map(), wrong: new Map(), drafts: {}, sessionResult: null, stats: null,
     importing: false, importCount: 0, storageStatus: '',
     settings: { ...defaultSettings }, loading: false, submitting: false,
     answerOpen: false, error: '', notice: '',
@@ -62,7 +54,6 @@ export function createPractice(offline) {
   };
   let progressWrites = Promise.resolve();
   let settingsWrites = Promise.resolve();
-  let pendingAttempt = null;
   const notify = () => listeners.forEach((listener) => listener(state));
   offline.subscribe((status) => {
     state.offline = status;
@@ -71,8 +62,8 @@ export function createPractice(offline) {
   const currentQuestion = () => state.bank?.questions[state.position] ?? null;
   const currentResult = () => {
     const question = currentQuestion();
-    const result = question && state.results.get(question.id);
-    return result?.revision === question?.revision ? result : null;
+    const result = state.sessionResult;
+    return result?.questionId === question?.id && result?.revision === question?.revision ? result : null;
   };
   const currentDraft = () => {
     const question = currentQuestion();
@@ -99,8 +90,8 @@ export function createPractice(offline) {
     });
   }
 
-  function progressSnapshot(drafts = state.drafts) {
-    return { bankId: state.bank.bankId, questionId: currentQuestion()?.id ?? null, drafts };
+  function progressSnapshot() {
+    return { bankId: state.bank.bankId, questionId: currentQuestion()?.id ?? null };
   }
 
   function saveProgress() {
@@ -121,7 +112,8 @@ export function createPractice(offline) {
     state.bank = bank;
     state.results = new Map(saved.states.map((item) => [item.questionId, item]));
     state.wrong = new Map(saved.wrong.map((item) => [item.questionId, item]));
-    state.drafts = saved.progress?.drafts ?? {};
+    state.drafts = {};
+    state.sessionResult = null;
     state.position = 0;
     state.stats = calculateStats(bank, state.results);
     state.savedQuestionId = saved.progress?.questionId ?? null;
@@ -193,10 +185,11 @@ export function createPractice(offline) {
     state.position = position;
     state.optionCursor = 0;
     state.screen = 'practice';
-    state.answerOpen = !currentResult() || Boolean(currentDraft()?.redo);
+    state.drafts = {};
+    state.sessionResult = null;
+    state.answerOpen = true;
     state.error = '';
     state.audio = { status: 'idle', kind: null, message: '' };
-    pendingAttempt = null;
     state.savedQuestionId = currentQuestion().id;
     saveProgress();
     debugLog('进入题目', {
@@ -204,13 +197,11 @@ export function createPractice(offline) {
       version: state.bank.version,
       questionId: currentQuestion().id,
       type: currentQuestion().type,
-      selectedOptionIds: currentDraft()?.selectedOptionIds ?? [],
-      submitted: Boolean(currentResult()),
+      selectedOptionIds: [],
+      submitted: false,
     });
     notify();
-    if (state.settings.autoQuestion && (!currentResult() || currentDraft()?.redo)) {
-      playAudio('question', true);
-    }
+    if (state.settings.autoQuestion) playAudio('question', true);
   }
 
   function start() {
@@ -219,6 +210,30 @@ export function createPractice(offline) {
     state.notice = state.savedQuestionId && savedPosition === undefined
       ? '上次浏览的题目已移除，已从第一题开始。' : '';
     enterQuestion(savedPosition ?? 0);
+  }
+
+  async function resetFromStart() {
+    if (!state.bank?.questions.length || state.loading || state.submitting) return;
+    player.stop();
+    state.loading = true;
+    notify();
+    try {
+      await progressWrites.catch(() => {});
+      await storage.resetBank(state.bank.bankId, state.bank.questions[0].id);
+      state.results = new Map();
+      state.wrong = new Map();
+      state.drafts = {};
+      state.sessionResult = null;
+      state.stats = calculateStats(state.bank, state.results);
+      state.savedQuestionId = state.bank.questions[0].id;
+      state.notice = '';
+      enterQuestion(0);
+    } catch (error) {
+      state.error = `从头开始失败：${error.message}`;
+    } finally {
+      state.loading = false;
+      notify();
+    }
   }
 
   function jumpToNumber(displayNumber) {
@@ -250,6 +265,8 @@ export function createPractice(offline) {
     player.stop();
     state.screen = 'home';
     state.answerOpen = false;
+    state.drafts = {};
+    state.sessionResult = null;
     state.error = '';
     state.notice = '';
     saveProgress();
@@ -289,10 +306,9 @@ export function createPractice(offline) {
 
   function openAnswer() {
     const question = currentQuestion();
-    if (!question || state.submitting || (currentResult() && !currentDraft()?.redo)) return;
+    if (!question || state.submitting || currentResult()) return;
     if (!currentDraft()) {
-      state.drafts = { ...state.drafts, [question.id]: { revision: question.revision, selectedOptionIds: [], redo: false } };
-      saveProgress();
+      state.drafts = { [question.id]: { revision: question.revision, selectedOptionIds: [] } };
     }
     state.answerOpen = true;
     state.error = '';
@@ -308,7 +324,7 @@ export function createPractice(offline) {
   function selectOption(optionId) {
     const question = currentQuestion();
     if (!state.answerOpen || !question?.options.some((option) => option.id === optionId) || state.submitting) return;
-    const draft = currentDraft() ?? { revision: question.revision, selectedOptionIds: [], redo: false };
+    const draft = currentDraft() ?? { revision: question.revision, selectedOptionIds: [] };
     const selectedOptionIds = question.type === 'single'
       ? [optionId]
       : draft.selectedOptionIds.includes(optionId)
@@ -316,9 +332,7 @@ export function createPractice(offline) {
         : [...draft.selectedOptionIds, optionId];
     state.drafts = { ...state.drafts, [question.id]: { ...draft, selectedOptionIds } };
     state.optionCursor = question.options.findIndex((option) => option.id === optionId);
-    pendingAttempt = null;
     state.error = '';
-    saveProgress();
     notify();
   }
 
@@ -328,21 +342,18 @@ export function createPractice(offline) {
     if (!question || !draft?.selectedOptionIds.length || state.submitting) return;
     player.stop();
     const graded = gradeQuestion(question, draft.selectedOptionIds);
-    const attempt = pendingAttempt ?? {
-      attemptId: createAttemptId(), bankId: state.bank.bankId,
+    const attempt = {
+      bankId: state.bank.bankId,
       questionId: question.id, revision: question.revision,
       selectedOptionIds: graded.selectedOptionIds,
       isCorrect: graded.isCorrect, submittedAt: new Date().toISOString(),
     };
-    pendingAttempt = attempt;
-    const nextDrafts = { ...state.drafts };
-    delete nextDrafts[question.id];
-    const progress = progressSnapshot(nextDrafts);
+    const progress = progressSnapshot();
     state.submitting = true;
     state.error = '';
     notify();
     debugLog('提交判题', {
-      attemptId: attempt.attemptId, bankId: attempt.bankId,
+      bankId: attempt.bankId,
       questionId: question.id, selectedOptionIds: graded.selectedOptionIds,
       correctOptionIds: graded.correctOptionIds, isCorrect: graded.isCorrect,
     });
@@ -350,10 +361,10 @@ export function createPractice(offline) {
     try {
       await progressWrites.catch(() => {});
       await storage.saveAttempt(attempt, progress);
-      state.drafts = nextDrafts;
+      state.drafts = {};
+      state.sessionResult = attempt;
       state.results.set(question.id, {
         bankId: attempt.bankId, questionId: question.id, revision: question.revision,
-        attemptId: attempt.attemptId, selectedOptionIds: attempt.selectedOptionIds,
         isCorrect: attempt.isCorrect, submittedAt: attempt.submittedAt,
       });
       if (!attempt.isCorrect) state.wrong.set(question.id, {
@@ -362,16 +373,15 @@ export function createPractice(offline) {
       });
       state.stats = calculateStats(state.bank, state.results);
       state.answerOpen = false;
-      pendingAttempt = null;
       saved = true;
       debugLog('作答已保存', {
-        attemptId: attempt.attemptId, bankId: attempt.bankId,
+        bankId: attempt.bankId,
         questionId: question.id, result: attempt.isCorrect,
         completed: state.stats.completed, correct: state.stats.correct, incorrect: state.stats.incorrect,
       });
     } catch (error) {
       state.error = `保存失败，请重试：${error.message}`;
-      debugLog('作答保存失败', { attemptId: attempt.attemptId, questionId: question.id, error: error.message });
+      debugLog('作答保存失败', { questionId: question.id, error: error.message });
     } finally {
       state.submitting = false;
       notify();
@@ -383,12 +393,11 @@ export function createPractice(offline) {
     const question = currentQuestion();
     if (!question || !currentResult() || state.submitting) return;
     player.stop();
-    state.drafts = { ...state.drafts, [question.id]: { revision: question.revision, selectedOptionIds: [], redo: true } };
+    state.sessionResult = null;
+    state.drafts = { [question.id]: { revision: question.revision, selectedOptionIds: [] } };
     state.answerOpen = true;
     state.optionCursor = 0;
     state.error = '';
-    pendingAttempt = null;
-    saveProgress();
     notify();
   }
 
@@ -443,7 +452,7 @@ export function createPractice(offline) {
       case 'submit': submit(); break;
       case 'previous': move(-1); break;
       case 'next': move(1); break;
-      case 'replay': playAudio(currentResult() && !currentDraft()?.redo ? 'explanation' : 'question'); break;
+      case 'replay': playAudio(currentResult() ? 'explanation' : 'question'); break;
       case 'back': backToBanks(); break;
       case 'redo': redo(); break;
       case 'cancel': closeAnswer(); break;
@@ -467,7 +476,7 @@ export function createPractice(offline) {
     const backup = JSON.parse(await file.text());
     const result = await storage.importBackup(backup, includeLocalPreferences);
     await initialize();
-    state.notice = `已合并 ${result.added} 条新作答。备份中的题库资源未包含在内，未安装题库需另行导入。`;
+    state.notice = `已合并 ${result.added} 道新题目的状态。备份中的题库资源未包含在内，未安装题库需另行导入。`;
     notify();
   }
 
@@ -518,7 +527,7 @@ export function createPractice(offline) {
 
   return {
     state, subscribe: (listener) => listeners.add(listener), currentQuestion, currentResult, currentDraft,
-    initialize, selectBank, start, jumpToNumber, move, backToBanks,
+    initialize, selectBank, start, resetFromStart, jumpToNumber, move, backToBanks,
     openWrongBook, closeWrongBook, removeWrong,
     openAnswer, closeAnswer, selectOption, submit, redo, changeFontSize,
     setKeyBinding, performAction,

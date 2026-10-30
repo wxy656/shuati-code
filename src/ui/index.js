@@ -45,7 +45,7 @@ export function mountUi(root, practice) {
   function renderDataTools(main, state) {
     const tools = element('section', '', 'settings');
     tools.append(element('h3', '题库与学习数据'));
-    tools.append(element('p', '正式题库 ZIP 下载到“文件”后，在这里选择导入；学习备份只含记录，不含题库音频。'));
+    tools.append(element('p', '正式题库 ZIP 下载到“文件”后，在这里选择导入；学习备份只含题号、对错状态和设置，不含作答选项及题库音频。'));
     const release = element('a', '下载完整题库 ZIP（v1，1499 题，约 191 MiB）');
     release.href = 'https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip';
     release.target = '_blank';
@@ -145,6 +145,11 @@ export function mountUi(root, practice) {
     card.append(button(state.savedQuestionId ? '继续练习' : '从第一题开始', practice.start, {
       disabled: state.loading || !state.stats.total, className: 'primary',
     }));
+    card.append(button('从头开始', () => {
+      if (window.confirm('清空当前题库的已完成、正确、错误计数和错题集，并从第一题开始？')) {
+        practice.resetFromStart();
+      }
+    }, { disabled: state.loading || !state.stats.total }));
 
     const jumpDetails = document.createElement('details');
     jumpDetails.open = jumpOpen;
@@ -280,7 +285,7 @@ export function mountUi(root, practice) {
     });
     main.append(button('返回题库管理', practice.closeWrongBook));
     main.append(element('h2', `错题管理 · ${questions.length} 题`));
-    main.append(element('p', '勾选题目后可移出错题集。已有作答记录会保留，再次答错时会重新加入。'));
+    main.append(element('p', '勾选题目后可移出错题集；再次答错时会重新加入。'));
     if (!questions.length) {
       main.append(element('p', '目前没有错题。'));
       return;
@@ -327,7 +332,7 @@ export function mountUi(root, practice) {
     if (!question) return;
     const result = practice.currentResult();
     const draft = practice.currentDraft();
-    const showResult = result && !draft?.redo;
+    const showResult = Boolean(result);
 
     const header = element('header', '', 'practice-header');
     header.append(button('返回题库', practice.backToBanks, { disabled: state.submitting }));
@@ -353,9 +358,6 @@ export function mountUi(root, practice) {
         options.append(element('li', `${option.label}. ${option.text}`));
       }
       content.append(options);
-      if (draft?.redo) {
-        content.append(element('p', '重新作答中；提交成功前，统计仍按上次结果计算。', 'hint'));
-      }
     }
     const body = element('div', '', 'practice-body');
     body.append(content);
