@@ -25,6 +25,7 @@ const keyActions = [
   ['optionD', '选择 D'], ['optionE', '选择 E'], ['optionF', '选择 F'],
   ['previous', '上一题'], ['next', '下一题'], ['replay', '重读'],
   ['submit', '提交'],
+  ['scrollUp', '向上阅读'], ['scrollDown', '向下阅读'],
   ['optionPrevious', '上一选项（可选）'], ['optionNext', '下一选项（可选）'],
   ['optionToggle', '勾选当前选项（可选）'],
   ['back', '返回题库'], ['redo', '重新作答'],
@@ -331,6 +332,7 @@ export function mountUi(root, practice) {
 
     const content = element('section', '', `practice-content ${showResult
       ? `result-view ${result.isCorrect ? 'correct' : 'incorrect'}` : 'question-view'}`);
+    content.tabIndex = 0;
     content.dataset.contentKey = `${state.bank.bankId}/${question.id}/${showResult ? 'result' : 'question'}`;
     content.style.fontSize = `${state.settings.fontSize}px`;
     if (showResult) {
@@ -425,8 +427,11 @@ export function mountUi(root, practice) {
       focused?.focus({ preventScroll: true });
     }
     if ((state.screen === 'practice' || capturingAction) && !root.contains(document.activeElement)) {
-      root.tabIndex = -1;
-      root.focus({ preventScroll: true });
+      if (state.screen === 'practice') content?.focus({ preventScroll: true });
+      else {
+        root.tabIndex = -1;
+        root.focus({ preventScroll: true });
+      }
     }
   }
 
@@ -449,6 +454,11 @@ export function mountUi(root, practice) {
       ?? bindings.find(([, mapped]) => mapped === keyCode)?.[0];
     if (!action) return;
     event.preventDefault();
+    if (action === 'scrollUp' || action === 'scrollDown') {
+      const content = root.querySelector('.practice-content');
+      content?.scrollBy({ top: (action === 'scrollDown' ? 1 : -1) * content.clientHeight * 0.75 });
+      return;
+    }
     if (event.repeat) return;
     practice.performAction(action);
   });
@@ -458,7 +468,7 @@ export function mountUi(root, practice) {
     if (!content) return;
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
-  }, { passive: false });
+  }, { passive: false, capture: true });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';

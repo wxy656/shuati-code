@@ -16,6 +16,7 @@ const defaultSettings = {
     optionD: 'KeyD', optionE: 'KeyE', optionF: 'KeyF',
     previous: 'ArrowLeft', next: 'ArrowRight', replay: 'KeyR',
     submit: 'Enter',
+    scrollUp: 'ArrowUp', scrollDown: 'ArrowDown',
     optionPrevious: null, optionNext: null, optionToggle: null,
   },
 };
@@ -138,7 +139,7 @@ export function createPractice(offline) {
       ]);
       const banks = [...builtIn.filter((item) => !catalog.some((local) => local.bankId === item.bankId)), ...catalog];
       const savedSettings = settings ?? {};
-      const { scrollUp, scrollDown, cancel, ...savedKeyMap } = savedSettings.keyMap ?? {};
+      const { cancel, ...savedKeyMap } = savedSettings.keyMap ?? {};
       state.settings = {
         ...defaultSettings, ...savedSettings,
         fontSize: Math.max(32, Math.min(80, savedSettings.fontSize ?? defaultSettings.fontSize)),
