@@ -46,95 +46,10 @@ export function mountUi(root, practice) {
   let onlineDialogOpen = false;
   let onlineResources = null;
   let onlineError = '';
-  let inputDiagnostics = null;
-  let scrollSamples = [];
-  let diagnosticScrolls = 0;
-  const inputEvents = ['wheel', 'mousewheel', 'keydown', 'pointermove', 'pointerdown', 'scroll'];
   const selectedWrongIds = new Set();
 
   function readingScroller() {
     return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
-  }
-
-  function describeNode(node) {
-    if (!node) return 'null';
-    if (node === document) return 'document';
-    if (node === window) return 'window';
-    if (!(node instanceof Element)) return node.nodeName;
-    const className = String(node.className || '').trim().replace(/\s+/g, '.');
-    return `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${className ? `.${className}` : ''}`;
-  }
-
-  function resetInputDiagnostics() {
-    inputDiagnostics = Object.fromEntries(inputEvents.map((type) => [type, { count: 0 }]));
-    scrollSamples = [];
-    diagnosticScrolls = 0;
-    root.querySelector('.practice-content')?.focus({ preventScroll: true });
-    updateInputDiagnostics();
-  }
-
-  function updateInputDiagnostics() {
-    const output = root.querySelector('.input-diagnostics textarea');
-    if (!output || !inputDiagnostics) return;
-    const content = root.querySelector('.practice-content');
-    const viewport = window.visualViewport;
-    output.value = JSON.stringify({
-      version: 'input-v3',
-      browser: navigator.userAgent,
-      mode: navigator.standalone || matchMedia('(display-mode: standalone)').matches ? 'PWA' : '浏览器',
-      fullscreen: Boolean(document.fullscreenElement),
-      document: {
-        top: document.scrollingElement.scrollTop,
-        height: document.scrollingElement.clientHeight,
-        total: document.scrollingElement.scrollHeight,
-        windowY: Math.round(window.scrollY),
-        bodyTop: document.body.scrollTop,
-        visualTop: viewport ? Math.round(viewport.pageTop) : null,
-      },
-      overflow: {
-        html: getComputedStyle(document.documentElement).overflow,
-        body: getComputedStyle(document.body).overflow,
-      },
-      focus: describeNode(document.activeElement),
-      diagnosticScrolls,
-      content: content && { top: content.scrollTop, height: content.clientHeight, total: content.scrollHeight },
-      events: inputDiagnostics,
-      scrollSamples,
-    }, null, 2);
-  }
-
-  for (const type of inputEvents) {
-    window.addEventListener(type, (event) => {
-      if (!inputDiagnostics || event.pointerType === 'touch') return;
-      const inDiagnostics = type !== 'keydown' && event.target instanceof Element && event.target.closest('.input-diagnostics');
-      if (type === 'scroll' && inDiagnostics) {
-        diagnosticScrolls += 1;
-        return;
-      }
-      if (inDiagnostics) return;
-      if (type === 'scroll') {
-        const viewport = window.visualViewport;
-        scrollSamples.push({
-          t: Math.round(event.timeStamp),
-          y: Math.round(window.scrollY),
-          de: document.documentElement.scrollTop,
-          bd: document.body.scrollTop,
-          vv: viewport ? Math.round(viewport.pageTop) : null,
-          target: describeNode(event.target),
-        });
-        if (scrollSamples.length > 10) scrollSamples.shift();
-      }
-      inputDiagnostics[type] = {
-        count: inputDiagnostics[type].count + 1,
-        target: describeNode(event.target),
-        key: event.key, code: event.code, pointer: event.pointerType,
-        x: event.clientX, y: event.clientY,
-        deltaX: event.deltaX, deltaY: event.deltaY, deltaMode: event.deltaMode,
-        wheelDelta: event.wheelDelta, ctrl: event.ctrlKey, cancelable: event.cancelable,
-        top: type === 'scroll' ? (event.target === document ? document.scrollingElement : event.target).scrollTop : undefined,
-      };
-      updateInputDiagnostics();
-    }, { capture: true, passive: true });
   }
 
   async function openOnlineResources() {
@@ -354,10 +269,6 @@ export function mountUi(root, practice) {
     }
     settings.append(keyRows);
     if (keyFeedback) settings.append(element('p', keyFeedback, 'hint'));
-    settings.append(button('检测旋钮', () => {
-      resetInputDiagnostics();
-      practice.start();
-    }, { disabled: state.loading || !state.bank }));
     main.append(settings);
   }
 
@@ -515,38 +426,11 @@ export function mountUi(root, practice) {
     if (state.screen === 'practice' && state.bank) renderPractice(main, state);
     else if (state.screen === 'wrongBook' && state.bank) renderWrongBook(main, state);
     else renderHome(main, state);
-    if (inputDiagnostics) {
-      const diagnostic = element('section', '', 'input-diagnostics');
-      diagnostic.append(element('p', '旋钮检测：清零后，仅转动旋钮，再复制结果。', 'action-hint'));
-      const output = document.createElement('textarea');
-      output.readOnly = true;
-      output.rows = 2;
-      output.setAttribute('aria-label', '旋钮检测结果');
-      const controls = element('div', '', 'button-row');
-      const copy = button('复制检测结果', async () => {
-        updateInputDiagnostics();
-        try {
-          await navigator.clipboard.writeText(output.value);
-          copy.textContent = '已复制';
-        } catch {
-          output.focus();
-          output.select();
-          copy.textContent = '请长按结果复制';
-        }
-      });
-      controls.append(button('清零', resetInputDiagnostics), copy, button('关闭检测', () => {
-        inputDiagnostics = null;
-        render(practice.state);
-      }));
-      diagnostic.append(output, controls);
-      (main.querySelector('.practice-footer') ?? main).append(diagnostic);
-    }
     root.replaceChildren(main);
     root.querySelector('.online-resources-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
     if (content) readingScroller().scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
     else if (isIPad && previousContent) window.scrollTo(0, 0);
-    updateInputDiagnostics();
     if (focusedKey) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
       focused?.focus({ preventScroll: true });

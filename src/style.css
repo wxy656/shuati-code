@@ -61,15 +61,6 @@ body {
   bottom: env(safe-area-inset-bottom);
 }
 
-.input-diagnostics {
-  flex-shrink: 0;
-}
-
-.input-diagnostics textarea {
-  width: 100%;
-  font-size: 12px;
-}
-
 .app-title {
   margin: 0;
   font-size: 1.2rem;
