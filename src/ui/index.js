@@ -50,6 +50,10 @@ export function mountUi(root, practice) {
   const inputEvents = ['wheel', 'mousewheel', 'keydown', 'pointermove', 'pointerdown', 'scroll'];
   const selectedWrongIds = new Set();
 
+  function readingScroller() {
+    return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
+  }
+
   function resetInputDiagnostics() {
     inputDiagnostics = Object.fromEntries(inputEvents.map((type) => [type, { count: 0 }]));
     root.querySelector('.practice-content')?.focus({ preventScroll: true });
@@ -61,11 +65,15 @@ export function mountUi(root, practice) {
     if (!output || !inputDiagnostics) return;
     const content = root.querySelector('.practice-content');
     output.value = JSON.stringify({
-      version: 'input-v1',
+      version: 'input-v2',
       browser: navigator.userAgent,
       mode: navigator.standalone || matchMedia('(display-mode: standalone)').matches ? 'PWA' : '浏览器',
       fullscreen: Boolean(document.fullscreenElement),
-      expanded: document.documentElement.classList.contains('reading-expanded'),
+      document: {
+        top: document.scrollingElement.scrollTop,
+        height: document.scrollingElement.clientHeight,
+        total: document.scrollingElement.scrollHeight,
+      },
       content: content && { top: content.scrollTop, height: content.clientHeight, total: content.scrollHeight },
       events: inputDiagnostics,
     }, null, 2);
@@ -83,6 +91,7 @@ export function mountUi(root, practice) {
         x: event.clientX, y: event.clientY,
         deltaX: event.deltaX, deltaY: event.deltaY, deltaMode: event.deltaMode,
         wheelDelta: event.wheelDelta, ctrl: event.ctrlKey, cancelable: event.cancelable,
+        top: type === 'scroll' ? (event.target === document ? document.scrollingElement : event.target).scrollTop : undefined,
       };
       updateInputDiagnostics();
     }, { capture: true, passive: true });
@@ -248,24 +257,12 @@ export function mountUi(root, practice) {
       button('字号增大', () => practice.changeFontSize(2)),
     );
     settings.append(controls);
-    if (isIPad) {
-      settings.append(button(document.documentElement.classList.contains('reading-expanded') ? '退出铺满显示' : '铺满显示', async () => {
-        try {
-          if (document.fullscreenElement) await document.exitFullscreen();
-          document.documentElement.classList.toggle('reading-expanded');
-          render(practice.state);
-        } catch (error) {
-          keyFeedback = `无法退出浏览器全屏：${error.message}`;
-          render(practice.state);
-        }
-      }));
-      settings.append(element('p', '铺满网页可用区域，支持键盘操作；Safari 工具栏仍由浏览器控制。'));
-    } else if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
+    if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
       const fullscreenButton = button(document.fullscreenElement ? '退出全屏' : '进入全屏', async () => {
         try {
           if (document.fullscreenElement) await document.exitFullscreen();
           else {
-            await document.documentElement.requestFullscreen();
+            await document.documentElement.requestFullscreen(isIPad ? { keyboardLock: 'browser' } : undefined);
             root.tabIndex = -1;
             root.focus({ preventScroll: true });
           }
@@ -274,6 +271,7 @@ export function mountUi(root, practice) {
         }
       }, { className: 'fullscreen-toggle' });
       settings.append(fullscreenButton);
+      if (isIPad) settings.append(element('p', '旧版 iPadOS（包括 16.6）在网页全屏中可能拦截字母键和 Enter；需要无导航栏并使用键盘时，请从主屏幕图标打开。', 'action-hint'));
     }
     const audioSettings = element('div', '', 'audio-settings');
     for (const [kind, label, checked] of [
@@ -413,8 +411,9 @@ export function mountUi(root, practice) {
     const body = element('div', '', 'practice-body');
     body.append(content);
     main.append(body);
-    if (state.error) main.append(element('p', state.error, 'error practice-message'));
-    if (state.notice) main.append(element('p', state.notice, 'hint practice-message'));
+    const footer = element('footer', '', 'practice-footer');
+    if (state.error) footer.append(element('p', state.error, 'error practice-message'));
+    if (state.notice) footer.append(element('p', state.notice, 'hint practice-message'));
 
     const selected = showResult ? result.selectedOptionIds : draft?.selectedOptionIds ?? [];
     const status = element('div', '', 'practice-status');
@@ -426,9 +425,9 @@ export function mountUi(root, practice) {
     status.append(element('span', state.audio.message || (state.audio.status === 'playing'
       ? `${state.audio.kind === 'question' ? '题目' : '解析'}播放中`
       : state.audio.status === 'loading' ? '音频加载中' : '音频未播放')));
-    main.append(status);
+    footer.append(status);
     const keys = state.settings.keyMap;
-    main.append(element('p', showResult
+    footer.append(element('p', showResult
       ? `${keyName(keys.next)} 下一题 · ${keyName(keys.replay)} 重读解析 · ${keyName(keys.previous)} 上一题 · ⟳/⟲上下移滑轮`
       : '选择 A–F · Enter 提交 · ←/→切题 · R 重读 ·⟳/⟲上下移滑轮', 'action-hint'));
 
@@ -449,17 +448,19 @@ export function mountUi(root, practice) {
     actions.append(button(state.position === state.bank.questions.length - 1 ? '已到末题' : '下一题', () => practice.move(1), {
       disabled: state.submitting || state.position === state.bank.questions.length - 1,
     }));
-    main.append(actions);
+    footer.append(actions);
+    main.append(footer);
   }
 
   function render(state) {
     const previousContent = root.querySelector('.practice-content');
     const scrollKey = previousContent?.dataset.contentKey;
-    const scrollTop = previousContent?.scrollTop ?? 0;
+    const scrollTop = readingScroller()?.scrollTop ?? 0;
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
     if (state.screen === 'practice') {
       main.classList.add('practice-page');
+      if (isIPad) main.classList.add('practice-document');
     }
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
@@ -498,12 +499,13 @@ export function mountUi(root, practice) {
         render(practice.state);
       }));
       diagnostic.append(output, controls);
-      main.append(diagnostic);
+      (main.querySelector('.practice-footer') ?? main).append(diagnostic);
     }
     root.replaceChildren(main);
     root.querySelector('.online-resources-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
-    if (content && content.dataset.contentKey === scrollKey) content.scrollTop = scrollTop;
+    if (content) readingScroller().scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
+    else if (isIPad && previousContent) window.scrollTo(0, 0);
     updateInputDiagnostics();
     if (focusedKey) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
@@ -538,8 +540,8 @@ export function mountUi(root, practice) {
     if (!action) return;
     event.preventDefault();
     if (action === 'scrollUp' || action === 'scrollDown') {
-      const content = root.querySelector('.practice-content');
-      content?.scrollBy({ top: (action === 'scrollDown' ? 1 : -1) * content.clientHeight * 0.75 });
+      const scroller = readingScroller();
+      scroller?.scrollBy({ top: (action === 'scrollDown' ? 1 : -1) * scroller.clientHeight * 0.75 });
       return;
     }
     if (event.repeat) return;
@@ -553,7 +555,7 @@ export function mountUi(root, practice) {
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
-  root.addEventListener('wheel', scrollReading, { passive: false });
+  if (!isIPad) root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
