@@ -3,7 +3,26 @@ import { loadBank, resourceUrl } from './index.js';
 
 const textDecoder = new TextDecoder();
 
-export async function importBankZip(file, storage, onProgress) {
+async function* zipChunks(source) {
+  if (source instanceof Blob) {
+    for (let offset = 0; offset < source.size; offset += 1024 * 1024) {
+      yield new Uint8Array(await source.slice(offset, offset + 1024 * 1024).arrayBuffer());
+    }
+  } else {
+    const reader = source.body.getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        yield value;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+}
+
+export async function importBankZip(source, storage, onProgress) {
   const installId = crypto.randomUUID();
   const cacheName = `shuati-local-${installId}`;
   const cache = await caches.open(cacheName);
@@ -50,9 +69,9 @@ export async function importBankZip(file, storage, onProgress) {
   });
   archive.register(AsyncUnzipInflate);
   try {
-    for (let offset = 0; offset < file.size; offset += 1024 * 1024) {
+    for await (const chunk of zipChunks(source)) {
       if (failure) throw failure;
-      archive.push(new Uint8Array(await file.slice(offset, offset + 1024 * 1024).arrayBuffer()), false);
+      archive.push(chunk, false);
       while (pending.size >= 24) await Promise.race(pending);
     }
     archive.push(new Uint8Array(), true);

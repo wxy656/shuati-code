@@ -46,7 +46,7 @@ export function createPractice(offline) {
   const state = {
     banks: [], bank: null, screen: 'home', position: 0, optionCursor: 0,
     results: new Map(), wrong: new Map(), drafts: {}, sessionResult: null, stats: null,
-    importing: false, importCount: 0, storageStatus: '',
+    importing: false, importOnline: false, importCount: 0, storageStatus: '',
     settings: { ...defaultSettings }, loading: false, submitting: false,
     error: '', notice: '',
     audio: { status: 'idle', kind: null, message: '' },
@@ -445,18 +445,21 @@ export function createPractice(offline) {
     updateSettings({ rate });
   }
 
-  async function installBank(file) {
+  async function installBank(fileOrUrl) {
     if (state.screen !== 'home' || state.importing || state.submitting) return;
     state.importing = true;
+    state.importOnline = typeof fileOrUrl === 'string';
     state.importCount = 0;
     state.error = '';
     notify();
     try {
-      const previous = state.banks.find((item) => item.bankId === state.bank?.bankId && item.local);
-      const entry = await importBankZip(file, storage, (count) => {
+      const source = typeof fileOrUrl === 'string' ? await fetch(fileOrUrl, { cache: 'no-store' }) : fileOrUrl;
+      if (source instanceof Response && !source.ok) throw new Error(`下载失败：HTTP ${source.status}`);
+      const entry = await importBankZip(source, storage, (count) => {
         state.importCount = count;
         notify();
       });
+      const previous = state.banks.find((item) => item.bankId === entry.bankId && item.local);
       const builtIn = await loadBankIndex().catch(() => []);
       const catalog = await storage.readCatalog();
       state.banks = [...builtIn.filter((item) => !catalog.some((local) => local.bankId === item.bankId)), ...catalog];

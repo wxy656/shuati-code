@@ -1,9 +1,9 @@
 {
   "banks": [
     {
-      "bankId": "shanghai-poetry",
-      "name": "上海小学古诗文样例（50 题）",
-      "description": "从正式题库选取的 50 道完整样例题；安装完整题库后沿用相同题目 ID 和学习记录。",
+      "bankId": "sample-50",
+      "name": "样题库",
+      "description": "内置 50 道样题，可离线练习。",
       "version": "v1",
       "questionCount": 50,
       "dataPath": "banks/sample/shanghai-poetry/v1/questions.json",

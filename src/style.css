@@ -94,6 +94,27 @@ p {
   margin-block: 1rem;
 }
 
+.online-resources-dialog {
+  width: min(36rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  border: 1px solid #c6cdd4;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.online-resources-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.online-resource {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid #c6cdd4;
+}
+
 .settings progress {
   display: block;
   width: min(100%, 28rem);

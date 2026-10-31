@@ -1,3 +1,5 @@
+import { resourceUrl } from '../banks/index.js';
+
 function element(tag, text, className) {
   const node = document.createElement(tag);
   node.textContent = text;
@@ -38,30 +40,43 @@ export function mountUi(root, practice) {
   let keyFeedback = '';
   let jumpOpen = false;
   let jumpValue = '';
+  let onlineDialogOpen = false;
+  let onlineResources = null;
+  let onlineError = '';
   const selectedWrongIds = new Set();
+
+  async function openOnlineResources() {
+    onlineDialogOpen = true;
+    onlineResources = null;
+    onlineError = '';
+    render(practice.state);
+    try {
+      const response = await fetch(resourceUrl('online-banks/index.json'), { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      onlineResources = await response.json();
+    } catch (error) {
+      onlineError = `无法读取线上资源：${error.message}`;
+    }
+    if (onlineDialogOpen) render(practice.state);
+  }
 
   function renderDataTools(main, state) {
     const tools = element('section', '', 'settings');
-    tools.append(element('h3', '完整题库导入'));
-    tools.append(element('p', '默认 50 题随应用自动离线保存；完整题库先下载 ZIP 到“文件”，再在此导入。'));
-    const release = element('a', '下载完整题库 ZIP（v1，1499 题，约 191 MiB）');
-    release.href = 'https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip';
-    release.target = '_blank';
-    release.rel = 'noopener noreferrer';
-    tools.append(release);
     const row = element('div', '', 'button-row');
+    row.append(button('线上资源', openOnlineResources, { disabled: state.importing }));
     const bankFile = document.createElement('input');
     bankFile.type = 'file';
     bankFile.accept = '.zip,application/zip';
     bankFile.setAttribute('aria-label', '选择题库 ZIP');
+    bankFile.hidden = true;
     bankFile.disabled = state.importing;
     bankFile.addEventListener('change', () => {
       if (bankFile.files[0]) practice.installBank(bankFile.files[0]);
     });
-    row.append(bankFile);
+    row.append(button('本地导入', () => bankFile.click(), { disabled: state.importing }), bankFile);
     if (state.bank?.local) row.append(button('删除本机题库资源', practice.deleteLocalBank, { disabled: state.importing }));
     tools.append(row);
-    if (state.importing) tools.append(element('p', `正在导入，已保存 ${state.importCount} 个文件…`));
+    if (state.importing) tools.append(element('p', `${state.importOnline ? '正在下载并导入' : '正在导入'}，已保存 ${state.importCount} 个文件…`));
     if (state.storageStatus) tools.append(element('p', state.storageStatus));
     if (state.bank) {
       const complete = state.offline.questionReady && state.offline.audioReadyCount === state.offline.audioTotal;
@@ -72,10 +87,34 @@ export function mountUi(root, practice) {
       if (state.offline.error) tools.append(element('p', state.offline.error, 'error'));
     }
     main.append(tools);
+
+    if (onlineDialogOpen) {
+      const dialog = element('dialog', '', 'online-resources-dialog');
+      dialog.append(element('h3', '线上资源'));
+      if (onlineError) dialog.append(element('p', onlineError, 'error'));
+      else if (!onlineResources) dialog.append(element('p', '正在读取 Release 题库…'));
+      else if (!onlineResources.length) dialog.append(element('p', '暂无可下载的题库。'));
+      else for (const item of onlineResources) {
+        const resource = element('div', '', 'online-resource');
+        resource.append(element('span', `${item.name} · ${item.fileName} · ${Math.round(item.size / 1048576)} MiB`));
+        resource.append(button('下载并导入', () => {
+          onlineDialogOpen = false;
+          render(practice.state);
+          practice.installBank(resourceUrl(item.path).href);
+        }, { disabled: state.importing }));
+        dialog.append(resource);
+      }
+      dialog.append(button('关闭', () => {
+        onlineDialogOpen = false;
+        render(practice.state);
+      }));
+      dialog.addEventListener('close', () => { onlineDialogOpen = false; });
+      main.append(dialog);
+    }
   }
 
   function renderHome(main, state) {
-    main.append(element('h2', '题库管理'));
+    main.append(element('h2', '题库导入'));
     renderDataTools(main, state);
     if (!state.banks.length) {
       if (!state.loading) main.append(element('p', '暂无可用题库。'));
@@ -378,6 +417,7 @@ export function mountUi(root, practice) {
     else if (state.screen === 'wrongBook' && state.bank) renderWrongBook(main, state);
     else renderHome(main, state);
     root.replaceChildren(main);
+    root.querySelector('.online-resources-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
     if (content && content.dataset.contentKey === scrollKey) content.scrollTop = scrollTop;
     if (focusedKey) {
