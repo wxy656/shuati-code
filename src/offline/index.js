@@ -4,9 +4,8 @@ import { debugLog } from '../debug.js';
 export function createOffline() {
   const listeners = new Set();
   const state = {
-    available: false, preparing: false, questionReady: false,
-    audioReadyCount: 0, audioTotal: 0, done: 0, total: 0,
-    failedCount: 0, failures: [], error: '', updateAvailable: false,
+    available: false, questionReady: false,
+    audioReadyCount: 0, audioTotal: 0, error: '', updateAvailable: false,
   };
   let registration = null;
   let currentBank = null;
@@ -57,7 +56,8 @@ export function createOffline() {
       state.questionReady = result.questionReady;
       state.audioTotal = paths.length;
       state.audioReadyCount = paths.length - result.missingAudio.length;
-      state.error = '';
+      state.error = state.questionReady && !result.missingAudio.length
+        ? '' : '离线资源不完整，请联网更新应用。';
       debugLog('离线资源状态', {
         bankId: bank.bankId, version: bank.version,
         questionReady: state.questionReady, audioReady: state.audioReadyCount, audioTotal: paths.length,
@@ -78,58 +78,11 @@ export function createOffline() {
     currentBank = bank;
     selection += 1;
     Object.assign(state, {
-      preparing: false, questionReady: false, audioReadyCount: 0,
-      audioTotal: audioPaths(bank).length, done: 0, total: 0,
-      failedCount: 0, failures: [], error: '',
+      questionReady: false, audioReadyCount: 0,
+      audioTotal: audioPaths(bank).length, error: '',
     });
     notify();
     inspect(bank);
-  }
-
-  async function prepare() {
-    const bank = currentBank;
-    if (!bank || bank.local || !state.available || state.preparing) return;
-    const selected = selection;
-    state.preparing = true;
-    state.failedCount = 0;
-    state.failures = [];
-    state.error = '';
-    notify();
-    try {
-      const current = await inspect(bank);
-      if (!current || selected !== selection) return;
-      const paths = [
-        ...(!current.questionReady ? [bank.dataPath] : []),
-        ...current.missingAudio,
-      ];
-      state.total = paths.length;
-      state.done = 0;
-      notify();
-      for (let offset = 0; offset < paths.length && selected === selection; offset += 24) {
-        const batch = paths.slice(offset, offset + 24);
-        const result = await request('PREPARE', bank, { paths: batch });
-        if (selected !== selection) return;
-        state.done += batch.length;
-        state.failedCount += result.failed.length;
-        state.failures.push(...result.failed.slice(0, Math.max(0, 5 - state.failures.length)));
-        debugLog('离线资源准备', {
-          bankId: bank.bankId, version: bank.version, done: state.done,
-          total: state.total, succeeded: result.succeeded, failed: result.failed.length,
-        });
-        notify();
-      }
-      if (selected === selection) await inspect(bank);
-    } catch (error) {
-      if (selected === selection) {
-        state.error = `离线准备中断：${error.message}`;
-        debugLog('离线资源准备失败', { bankId: bank.bankId, version: bank.version, error: error.message });
-      }
-    } finally {
-      if (selected === selection) {
-        state.preparing = false;
-        notify();
-      }
-    }
   }
 
   async function initialize() {
@@ -167,5 +120,5 @@ export function createOffline() {
   }
 
   return { state, subscribe: (listener) => listeners.add(listener), initialize,
-    selectBank, prepare, activateUpdate };
+    selectBank, activateUpdate };
 }

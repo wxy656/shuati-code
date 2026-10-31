@@ -19,11 +19,15 @@ export default defineConfig({
         type: 'asset', fileName: name,
         source: readFileSync(new URL(`./public/${name}`, import.meta.url)),
       });
+      const sampleFiles = [];
       const addSample = (directory, relative = '') => {
         for (const item of readdirSync(directory, { withFileTypes: true })) {
           const name = join(relative, item.name);
           if (item.isDirectory()) addSample(new URL(`${item.name}/`, directory), name);
-          else addPublicFile(`banks/sample/${name}`);
+          else {
+            sampleFiles.push(`banks/sample/${name}`);
+            addPublicFile(`banks/sample/${name}`);
+          }
         }
       };
       for (const name of ['banks/index.json', 'favicon.svg', 'manifest.webmanifest']) addPublicFile(name);
@@ -32,7 +36,8 @@ export default defineConfig({
         this.emitFile({ type: 'asset', fileName, source: bundle['assets/index.js'].code });
       }
       const files = ['.', 'index.html', 'banks/index.json', 'favicon.svg', 'manifest.webmanifest',
-        ...Object.keys(bundle).filter((name) => name.startsWith('assets/') && !name.endsWith('.map'))];
+        ...Object.keys(bundle).filter((name) => name.startsWith('assets/') && !name.endsWith('.map')),
+        ...sampleFiles];
       const version = createHash('sha256')
         .update(JSON.stringify(files.map((name) => [name, bundle[name]?.code ?? bundle[name]?.source ?? ''])))
         .digest('hex').slice(0, 12);

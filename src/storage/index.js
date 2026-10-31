@@ -153,46 +153,6 @@ export function createStorage() {
     await done;
   }
 
-  async function importBackup(backup, includeLocalPreferences = false) {
-    if (![2, 3].includes(backup?.schemaVersion) || !Array.isArray(backup.latest) ||
-        !Array.isArray(backup.wrongBook)) throw new Error('备份格式不受支持');
-    const db = await database;
-    const read = db.transaction(['questionStates', 'wrongBook'], 'readonly');
-    const [oldStates, oldWrong] = await Promise.all([
-      requestResult(read.objectStore('questionStates').getAll()),
-      requestResult(read.objectStore('wrongBook').getAll()),
-    ]);
-    const latest = new Map();
-    for (const item of [...oldStates, ...backup.latest]) {
-      if (!item.bankId || !item.questionId || typeof item.isCorrect !== 'boolean') continue;
-      const key = `${item.bankId}\u0000${item.questionId}`;
-      const previous = latest.get(key);
-      if (!previous || item.submittedAt > previous.submittedAt) latest.set(key, {
-        bankId: item.bankId, questionId: item.questionId, revision: item.revision,
-        isCorrect: item.isCorrect, submittedAt: item.submittedAt,
-      });
-    }
-    const wrong = new Map(oldWrong.map((item) => [`${item.bankId}\u0000${item.questionId}`, item]));
-    for (const item of backup.wrongBook) {
-      if (!item.bankId || !item.questionId) continue;
-      const key = `${item.bankId}\u0000${item.questionId}`;
-      if (!wrong.has(key) || item.updatedAt > wrong.get(key).updatedAt) wrong.set(key, item);
-    }
-    const names = ['questionStates', 'wrongBook', ...(includeLocalPreferences ? ['progress', 'settings'] : [])];
-    const transaction = db.transaction(names, 'readwrite');
-    const done = transactionDone(transaction);
-    for (const item of latest.values()) transaction.objectStore('questionStates').put(item);
-    for (const item of wrong.values()) transaction.objectStore('wrongBook').put(item);
-    if (includeLocalPreferences) {
-      for (const { bankId, questionId } of backup.progress ?? []) {
-        transaction.objectStore('progress').put({ bankId, questionId });
-      }
-      for (const item of backup.settings ?? []) transaction.objectStore('settings').put(item);
-    }
-    await done;
-    return { added: latest.size - oldStates.length };
-  }
-
   return { readSettings, saveSettings, readBankState, readCatalog, saveCatalog, removeCatalog,
-    setWrong, saveProgress, saveAttempt, resetBank, importBackup };
+    setWrong, saveProgress, saveAttempt, resetBank };
 }

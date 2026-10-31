@@ -36,15 +36,14 @@ function keyName(code) {
 export function mountUi(root, practice) {
   let capturingAction = null;
   let keyFeedback = '';
-  let dataFeedback = '';
   let jumpOpen = false;
   let jumpValue = '';
   const selectedWrongIds = new Set();
 
   function renderDataTools(main, state) {
     const tools = element('section', '', 'settings');
-    tools.append(element('h3', '题库离线使用'));
-    tools.append(element('p', '完整题库：先下载 ZIP 到“文件”，再选择该 ZIP 导入本机。'));
+    tools.append(element('h3', '完整题库导入'));
+    tools.append(element('p', '默认 50 题随应用自动离线保存；完整题库先下载 ZIP 到“文件”，再在此导入。'));
     const release = element('a', '下载完整题库 ZIP（v1，1499 题，约 191 MiB）');
     release.href = 'https://github.com/wxy656/shuati-code/releases/download/shanghai-poetry-v1/shanghai-poetry-v1.zip';
     release.target = '_blank';
@@ -66,53 +65,12 @@ export function mountUi(root, practice) {
     if (state.storageStatus) tools.append(element('p', state.storageStatus));
     if (state.bank) {
       const complete = state.offline.questionReady && state.offline.audioReadyCount === state.offline.audioTotal;
-      tools.append(element('p', `${state.bank.name}：题目${state.offline.questionReady ? '已保存' : '未保存'} · 音频 ${state.offline.audioReadyCount}/${state.offline.audioTotal} 已保存`));
-      if (!state.bank.local && state.offline.available) {
-        tools.append(button(state.offline.preparing ? '下载中…' : complete ? '已下载，可离线使用' : '下载当前题库到本机',
-          practice.prepareOffline, { disabled: state.offline.preparing || complete }));
-        if (state.offline.preparing) {
-          const progress = document.createElement('progress');
-          progress.max = Math.max(1, state.offline.total);
-          progress.value = state.offline.done;
-          tools.append(progress, element('p', `已下载 ${state.offline.done}/${state.offline.total} 项`));
-        }
-        if (state.offline.failedCount) {
-          tools.append(element('p', `${state.offline.failedCount} 项下载失败，可再次点击下载补齐。`, 'error'));
-          for (const failure of state.offline.failures) {
-            tools.append(element('p', `${failure.path}：${failure.reason}`, 'offline-failure'));
-          }
-        }
-      } else if (!state.bank.local) {
+      tools.append(element('p', `${state.bank.name}：题目${state.offline.questionReady ? '已保存' : '未保存'} · 音频 ${state.offline.audioReadyCount}/${state.offline.audioTotal} 已保存${complete ? ' · 可离线使用' : ''}`));
+      if (!state.bank.local && !state.offline.available) {
         tools.append(element('p', '离线服务尚未就绪。'));
       }
       if (state.offline.error) tools.append(element('p', state.offline.error, 'error'));
     }
-    tools.append(element('h3', '学习数据'));
-    tools.append(element('p', '已有学习备份可在下方导入，不含题库音频。'));
-    const backupRow = element('div', '', 'button-row');
-    const usePreferences = document.createElement('input');
-    usePreferences.type = 'checkbox';
-    usePreferences.setAttribute('aria-label', '同时采用备份中的设置和进度');
-    const preferenceLabel = element('label', '', 'setting-row');
-    preferenceLabel.append(usePreferences, element('span', '同时采用备份中的设置和进度'));
-    backupRow.append(preferenceLabel);
-    const backupFile = document.createElement('input');
-    backupFile.type = 'file';
-    backupFile.accept = '.json,application/json';
-    backupFile.setAttribute('aria-label', '选择学习备份 JSON');
-    backupFile.addEventListener('change', async () => {
-      if (!backupFile.files[0]) return;
-      try {
-        await practice.importBackup(backupFile.files[0], usePreferences.checked);
-        dataFeedback = '';
-      } catch (error) {
-        dataFeedback = `导入备份失败：${error.message}`;
-        render(practice.state);
-      }
-    });
-    backupRow.append(backupFile);
-    tools.append(backupRow);
-    if (dataFeedback) tools.append(element('p', dataFeedback, 'error'));
     main.append(tools);
   }
 

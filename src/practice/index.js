@@ -445,14 +445,6 @@ export function createPractice(offline) {
     updateSettings({ rate });
   }
 
-  async function importBackup(file, includeLocalPreferences) {
-    const backup = JSON.parse(await file.text());
-    const result = await storage.importBackup(backup, includeLocalPreferences);
-    await initialize();
-    state.notice = `已合并 ${result.added} 道新题目的状态。备份中的题库资源未包含在内，未安装题库需另行导入。`;
-    notify();
-  }
-
   async function installBank(file) {
     if (state.screen !== 'home' || state.importing || state.submitting) return;
     state.importing = true;
@@ -505,8 +497,7 @@ export function createPractice(offline) {
     selectOption, submit, redo, changeFontSize,
     setKeyBinding, performAction,
     playQuestion: () => playAudio('question'), playExplanation: () => playAudio('explanation'),
-    setAutoPlay, changeRate, importBackup, installBank, deleteLocalBank,
-    prepareOffline: offline.prepare,
+    setAutoPlay, changeRate, installBank, deleteLocalBank,
     activateUpdate: () => {
       if (state.screen === 'home' && !state.submitting) offline.activateUpdate();
     },
