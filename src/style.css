@@ -19,9 +19,7 @@ body {
 }
 
 .practice-page {
-  position: relative;
   height: 100dvh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -29,13 +27,25 @@ body {
     max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
 }
 
-.practice-page::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 1px;
-  height: 100dvh;
+.reading-expanded {
+  overflow: hidden;
+}
+
+.reading-expanded #app {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  z-index: 10;
+  background: #f7f8fa;
+}
+
+.input-diagnostics {
+  flex-shrink: 0;
+}
+
+.input-diagnostics textarea {
+  width: 100%;
+  font-size: 12px;
 }
 
 .app-title {

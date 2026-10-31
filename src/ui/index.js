@@ -37,6 +37,8 @@ function keyName(code) {
 }
 
 export function mountUi(root, practice) {
+  const isIPad = /iPad/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   let capturingAction = null;
   let keyFeedback = '';
   let jumpOpen = false;
@@ -44,7 +46,47 @@ export function mountUi(root, practice) {
   let onlineDialogOpen = false;
   let onlineResources = null;
   let onlineError = '';
+  let inputDiagnostics = null;
+  const inputEvents = ['wheel', 'mousewheel', 'keydown', 'pointermove', 'pointerdown', 'scroll'];
   const selectedWrongIds = new Set();
+
+  function resetInputDiagnostics() {
+    inputDiagnostics = Object.fromEntries(inputEvents.map((type) => [type, { count: 0 }]));
+    root.querySelector('.practice-content')?.focus({ preventScroll: true });
+    updateInputDiagnostics();
+  }
+
+  function updateInputDiagnostics() {
+    const output = root.querySelector('.input-diagnostics textarea');
+    if (!output || !inputDiagnostics) return;
+    const content = root.querySelector('.practice-content');
+    output.value = JSON.stringify({
+      version: 'input-v1',
+      browser: navigator.userAgent,
+      mode: navigator.standalone || matchMedia('(display-mode: standalone)').matches ? 'PWA' : '浏览器',
+      fullscreen: Boolean(document.fullscreenElement),
+      expanded: document.documentElement.classList.contains('reading-expanded'),
+      content: content && { top: content.scrollTop, height: content.clientHeight, total: content.scrollHeight },
+      events: inputDiagnostics,
+    }, null, 2);
+  }
+
+  for (const type of inputEvents) {
+    window.addEventListener(type, (event) => {
+      if (!inputDiagnostics || event.pointerType === 'touch') return;
+      if (type !== 'keydown' && event.target instanceof Element && event.target.closest('.input-diagnostics')) return;
+      inputDiagnostics[type] = {
+        count: inputDiagnostics[type].count + 1,
+        target: event.target instanceof Element ? `${event.target.tagName}.${event.target.className}`
+          : event.target === document ? 'document' : 'window',
+        key: event.key, code: event.code, pointer: event.pointerType,
+        x: event.clientX, y: event.clientY,
+        deltaX: event.deltaX, deltaY: event.deltaY, deltaMode: event.deltaMode,
+        wheelDelta: event.wheelDelta, ctrl: event.ctrlKey, cancelable: event.cancelable,
+      };
+      updateInputDiagnostics();
+    }, { capture: true, passive: true });
+  }
 
   async function openOnlineResources() {
     onlineDialogOpen = true;
@@ -206,21 +248,29 @@ export function mountUi(root, practice) {
       button('字号增大', () => practice.changeFontSize(2)),
     );
     settings.append(controls);
-    if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
-      const isIPad = /iPad/.test(navigator.userAgent)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIPad) {
+      settings.append(button(document.documentElement.classList.contains('reading-expanded') ? '退出铺满显示' : '铺满显示', async () => {
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          document.documentElement.classList.toggle('reading-expanded');
+          render(practice.state);
+        } catch (error) {
+          keyFeedback = `无法退出浏览器全屏：${error.message}`;
+          render(practice.state);
+        }
+      }));
+      settings.append(element('p', '铺满网页可用区域，支持键盘操作；Safari 工具栏仍由浏览器控制。'));
+    } else if (document.fullscreenEnabled && document.documentElement.requestFullscreen) {
       const fullscreenButton = button(document.fullscreenElement ? '退出全屏' : '进入全屏', async () => {
         try {
           if (document.fullscreenElement) await document.exitFullscreen();
           else {
-            await document.documentElement.requestFullscreen(isIPad ? { keyboardLock: 'browser' } : undefined);
+            await document.documentElement.requestFullscreen();
             root.tabIndex = -1;
             root.focus({ preventScroll: true });
           }
         } catch {
-          fullscreenButton.after(element('p', isIPad
-            ? '当前 Safari 无法在网页全屏中使用物理键盘，请通过分享菜单添加到主屏幕，再从主屏幕打开。'
-            : '无法切换全屏，请通过 Safari 的分享菜单添加到主屏幕后打开。', 'error'));
+          fullscreenButton.after(element('p', '无法切换全屏，请通过浏览器菜单切换。', 'error'));
         }
       }, { className: 'fullscreen-toggle' });
       settings.append(fullscreenButton);
@@ -266,6 +316,10 @@ export function mountUi(root, practice) {
     }
     settings.append(keyRows);
     if (keyFeedback) settings.append(element('p', keyFeedback, 'hint'));
+    settings.append(button('检测旋钮', () => {
+      resetInputDiagnostics();
+      practice.start();
+    }, { disabled: state.loading || !state.bank }));
     main.append(settings);
   }
 
@@ -406,13 +460,6 @@ export function mountUi(root, practice) {
     const main = element('main', '', 'page');
     if (state.screen === 'practice') {
       main.classList.add('practice-page');
-      main.addEventListener('wheel', scrollReading, { passive: false });
-      main.addEventListener('scroll', () => {
-        const delta = main.scrollTop;
-        if (!delta) return;
-        main.scrollTop = 0;
-        main.querySelector('.practice-content')?.scrollBy({ top: delta });
-      });
     }
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
@@ -427,10 +474,37 @@ export function mountUi(root, practice) {
     if (state.screen === 'practice' && state.bank) renderPractice(main, state);
     else if (state.screen === 'wrongBook' && state.bank) renderWrongBook(main, state);
     else renderHome(main, state);
+    if (inputDiagnostics) {
+      const diagnostic = element('section', '', 'input-diagnostics');
+      diagnostic.append(element('p', '旋钮检测：清零后，仅转动旋钮，再复制结果。', 'action-hint'));
+      const output = document.createElement('textarea');
+      output.readOnly = true;
+      output.rows = 2;
+      output.setAttribute('aria-label', '旋钮检测结果');
+      const controls = element('div', '', 'button-row');
+      const copy = button('复制检测结果', async () => {
+        updateInputDiagnostics();
+        try {
+          await navigator.clipboard.writeText(output.value);
+          copy.textContent = '已复制';
+        } catch {
+          output.focus();
+          output.select();
+          copy.textContent = '请长按结果复制';
+        }
+      });
+      controls.append(button('清零', resetInputDiagnostics), copy, button('关闭检测', () => {
+        inputDiagnostics = null;
+        render(practice.state);
+      }));
+      diagnostic.append(output, controls);
+      main.append(diagnostic);
+    }
     root.replaceChildren(main);
     root.querySelector('.online-resources-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
     if (content && content.dataset.contentKey === scrollKey) content.scrollTop = scrollTop;
+    updateInputDiagnostics();
     if (focusedKey) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
       focused?.focus({ preventScroll: true });
@@ -479,6 +553,7 @@ export function mountUi(root, practice) {
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
+  root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
