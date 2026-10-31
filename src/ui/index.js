@@ -47,6 +47,8 @@ export function mountUi(root, practice) {
   let onlineResources = null;
   let onlineError = '';
   let inputDiagnostics = null;
+  let scrollSamples = [];
+  let diagnosticScrolls = 0;
   const inputEvents = ['wheel', 'mousewheel', 'keydown', 'pointermove', 'pointerdown', 'scroll'];
   const selectedWrongIds = new Set();
 
@@ -54,8 +56,19 @@ export function mountUi(root, practice) {
     return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
   }
 
+  function describeNode(node) {
+    if (!node) return 'null';
+    if (node === document) return 'document';
+    if (node === window) return 'window';
+    if (!(node instanceof Element)) return node.nodeName;
+    const className = String(node.className || '').trim().replace(/\s+/g, '.');
+    return `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${className ? `.${className}` : ''}`;
+  }
+
   function resetInputDiagnostics() {
     inputDiagnostics = Object.fromEntries(inputEvents.map((type) => [type, { count: 0 }]));
+    scrollSamples = [];
+    diagnosticScrolls = 0;
     root.querySelector('.practice-content')?.focus({ preventScroll: true });
     updateInputDiagnostics();
   }
@@ -64,8 +77,9 @@ export function mountUi(root, practice) {
     const output = root.querySelector('.input-diagnostics textarea');
     if (!output || !inputDiagnostics) return;
     const content = root.querySelector('.practice-content');
+    const viewport = window.visualViewport;
     output.value = JSON.stringify({
-      version: 'input-v2',
+      version: 'input-v3',
       browser: navigator.userAgent,
       mode: navigator.standalone || matchMedia('(display-mode: standalone)').matches ? 'PWA' : '浏览器',
       fullscreen: Boolean(document.fullscreenElement),
@@ -73,20 +87,46 @@ export function mountUi(root, practice) {
         top: document.scrollingElement.scrollTop,
         height: document.scrollingElement.clientHeight,
         total: document.scrollingElement.scrollHeight,
+        windowY: Math.round(window.scrollY),
+        bodyTop: document.body.scrollTop,
+        visualTop: viewport ? Math.round(viewport.pageTop) : null,
       },
+      overflow: {
+        html: getComputedStyle(document.documentElement).overflow,
+        body: getComputedStyle(document.body).overflow,
+      },
+      focus: describeNode(document.activeElement),
+      diagnosticScrolls,
       content: content && { top: content.scrollTop, height: content.clientHeight, total: content.scrollHeight },
       events: inputDiagnostics,
+      scrollSamples,
     }, null, 2);
   }
 
   for (const type of inputEvents) {
     window.addEventListener(type, (event) => {
       if (!inputDiagnostics || event.pointerType === 'touch') return;
-      if (type !== 'keydown' && event.target instanceof Element && event.target.closest('.input-diagnostics')) return;
+      const inDiagnostics = type !== 'keydown' && event.target instanceof Element && event.target.closest('.input-diagnostics');
+      if (type === 'scroll' && inDiagnostics) {
+        diagnosticScrolls += 1;
+        return;
+      }
+      if (inDiagnostics) return;
+      if (type === 'scroll') {
+        const viewport = window.visualViewport;
+        scrollSamples.push({
+          t: Math.round(event.timeStamp),
+          y: Math.round(window.scrollY),
+          de: document.documentElement.scrollTop,
+          bd: document.body.scrollTop,
+          vv: viewport ? Math.round(viewport.pageTop) : null,
+          target: describeNode(event.target),
+        });
+        if (scrollSamples.length > 10) scrollSamples.shift();
+      }
       inputDiagnostics[type] = {
         count: inputDiagnostics[type].count + 1,
-        target: event.target instanceof Element ? `${event.target.tagName}.${event.target.className}`
-          : event.target === document ? 'document' : 'window',
+        target: describeNode(event.target),
         key: event.key, code: event.code, pointer: event.pointerType,
         x: event.clientX, y: event.clientY,
         deltaX: event.deltaX, deltaY: event.deltaY, deltaMode: event.deltaMode,
