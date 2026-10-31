@@ -462,13 +462,13 @@ export function mountUi(root, practice) {
     if (event.repeat) return;
     practice.performAction(action);
   });
-  window.addEventListener('wheel', (event) => {
+  root.addEventListener('wheel', (event) => {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
-  }, { passive: false, capture: true });
+  }, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
