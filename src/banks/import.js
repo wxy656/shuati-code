@@ -50,9 +50,9 @@ export async function importBankZip(file, storage, onProgress) {
   });
   archive.register(AsyncUnzipInflate);
   try {
-    for await (const chunk of file.stream()) {
+    for (let offset = 0; offset < file.size; offset += 1024 * 1024) {
       if (failure) throw failure;
-      archive.push(new Uint8Array(chunk), false);
+      archive.push(new Uint8Array(await file.slice(offset, offset + 1024 * 1024).arrayBuffer()), false);
       while (pending.size >= 24) await Promise.race(pending);
     }
     archive.push(new Uint8Array(), true);
