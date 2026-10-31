@@ -404,7 +404,16 @@ export function mountUi(root, practice) {
     const scrollTop = previousContent?.scrollTop ?? 0;
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
-    if (state.screen === 'practice') main.classList.add('practice-page');
+    if (state.screen === 'practice') {
+      main.classList.add('practice-page');
+      main.addEventListener('wheel', scrollReading, { passive: false });
+      main.addEventListener('scroll', () => {
+        const delta = main.scrollTop;
+        if (!delta) return;
+        main.scrollTop = 0;
+        main.querySelector('.practice-content')?.scrollBy({ top: delta });
+      });
+    }
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
     if (state.error && state.screen !== 'practice') main.append(element('p', state.error, 'error'));
@@ -462,13 +471,14 @@ export function mountUi(root, practice) {
     if (event.repeat) return;
     practice.performAction(action);
   });
-  root.addEventListener('wheel', (event) => {
+  function scrollReading(event) {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
+    if (!event.cancelable) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
-  }, { passive: false });
+  }
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';

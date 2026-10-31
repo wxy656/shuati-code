@@ -19,12 +19,23 @@ body {
 }
 
 .practice-page {
+  position: relative;
   height: 100dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right))
     max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+}
+
+.practice-page::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 1px;
+  height: 100dvh;
 }
 
 .app-title {
