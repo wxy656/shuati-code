@@ -62,7 +62,7 @@ export function mountUi(root, practice) {
   const selectedWrongIds = new Set();
 
   // 练习页始终只滚白色题目卡片，头部和底部固定不动。iPad 也走同一条路径：
-  // 旋钮映射为鼠标滚轮时，指针在题目区域上滚动的是这张卡片，而不是整个页面。
+  // 旋钮映射为鼠标滚轮时，不管系统指针停在哪里，滚动的都是这张卡片。
   // 不要再按 iPad 改成 document.scrollingElement 整页滚动。
   function readingScroller() {
     return root.querySelector('.practice-content');
@@ -326,9 +326,9 @@ export function mountUi(root, practice) {
   function renderHome(main, state) {
     main.append(element('h2', '题库导入'));
     renderDataTools(main, state);
-    renderLogTools(main, state);
     if (!state.banks.length) {
       if (!state.loading) main.append(element('p', '暂无可用题库。'));
+      renderLogTools(main, state);
       return;
     }
 
@@ -344,7 +344,10 @@ export function mountUi(root, practice) {
     selector.addEventListener('change', () => practice.selectBank(selector.value));
     main.append(selector);
 
-    if (!state.bank) return;
+    if (!state.bank) {
+      renderLogTools(main, state);
+      return;
+    }
     const card = element('section', '', 'bank-card');
     card.append(element('h3', state.bank.name));
     card.append(element('p', state.bank.description));
@@ -474,6 +477,7 @@ export function mountUi(root, practice) {
     settings.append(keyRows);
     if (keyFeedback) settings.append(element('p', keyFeedback, 'hint'));
     main.append(settings);
+    renderLogTools(main, state);
   }
 
   function renderWrongBook(main, state) {
@@ -675,14 +679,23 @@ export function mountUi(root, practice) {
   });
   function scrollReading(event) {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
-    if (!event.cancelable) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;
-    event.preventDefault();
-    content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
+    const distance = event.deltaY
+      * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1);
+    if (event.cancelable) {
+      event.preventDefault();
+      content.scrollBy({ top: distance });
+      return;
+    }
+    // iPad 上旋钮发出的滚轮事件通常不可取消，Safari 只会原生滚动指针下方的元素。
+    // 旋钮连上后指针默认停在屏幕左上角（头部区域），原生滚动落不到题目卡片上，
+    // 表现就是“旋钮没反应”。指针不在卡片上时由这里手动滚动卡片；指针在卡片上时
+    // 交给原生滚动，避免一次滚动两倍距离。浏览器无法移动系统指针，所以只能这样兜底。
+    const target = event.target;
+    const onCard = target instanceof Node && content.contains(target);
+    if (!onCard) content.scrollBy({ top: distance });
   }
-  // iPad 的滚轮事件可能不可取消：可取消时由这里滚动题目卡片；
-  // 不可取消时交给 Safari 原生滚动指针下方的卡片，避免双重滚动。
   root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
