@@ -18,6 +18,8 @@ body {
     max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
+/* 练习页固定一屏：头部和底部不动，只有题目卡片 .practice-content 自己滚动。
+   iPad 也使用卡片滚动，旋钮映射为鼠标滚轮时只滚题目区域；不要改成整页滚动。 */
 .practice-page {
   height: 100dvh;
   display: flex;
@@ -32,33 +34,6 @@ body {
   flex-direction: column;
   flex-shrink: 0;
   gap: 0.35rem;
-}
-
-.practice-document {
-  height: auto;
-}
-
-.practice-document .practice-body {
-  flex: 1 0 auto;
-}
-
-.practice-document .practice-content {
-  overflow: visible;
-}
-
-.practice-document .practice-header,
-.practice-document .practice-footer {
-  position: sticky;
-  z-index: 1;
-  background: #f7f8fa;
-}
-
-.practice-document .practice-header {
-  top: env(safe-area-inset-top);
-}
-
-.practice-document .practice-footer {
-  bottom: env(safe-area-inset-bottom);
 }
 
 .app-title {
@@ -115,6 +90,15 @@ p {
 .jump-form input {
   min-height: 44px;
   padding: 0.6rem;
+  font: inherit;
+}
+
+.token-dialog input {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.6rem;
+  margin-block: 0.5rem;
   font: inherit;
 }
 

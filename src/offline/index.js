@@ -1,5 +1,6 @@
 import { resourceUrl } from '../banks/index.js';
 import { debugLog } from '../debug.js';
+import { recordLog } from '../log/index.js';
 
 export function createOffline() {
   const listeners = new Set();
@@ -68,6 +69,7 @@ export function createOffline() {
       if (selected === selection) {
         state.error = `检查离线资源失败：${error.message}`;
         debugLog('离线资源检查失败', { bankId: bank.bankId, version: bank.version, error: error.message });
+        recordLog('离线资源检查失败', { bankId: bank.bankId, version: bank.version, error: error.message });
         notify();
       }
       return null;
@@ -109,6 +111,7 @@ export function createOffline() {
       inspect();
     } catch (error) {
       state.error = `离线服务启用失败：${error.message}`;
+      recordLog('离线服务启用失败', { error: error.message });
       notify();
     }
   }

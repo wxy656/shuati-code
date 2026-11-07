@@ -1,4 +1,8 @@
 import { resourceUrl } from '../banks/index.js';
+import {
+  APP_VERSION, clearLogConfig, clearRuntimeLog, logStats, logText,
+  readLogConfig, saveLogConfig, uploadRuntimeLog, verifyLogToken,
+} from '../log/index.js';
 
 function element(tag, text, className) {
   const node = document.createElement(tag);
@@ -46,10 +50,209 @@ export function mountUi(root, practice) {
   let onlineDialogOpen = false;
   let onlineResources = null;
   let onlineError = '';
+  let logBusy = false;
+  let logMessage = '';
+  let logError = '';
+  let tokenDialogOpen = false;
+  let tokenDialogDraft = '';
+  let tokenDialogError = '';
+  let tokenDialogMode = 'save';
+  let logTokenSaved = Boolean(readLogConfig().token);
+  let logResultUrl = '';
   const selectedWrongIds = new Set();
 
+  // 练习页始终只滚白色题目卡片，头部和底部固定不动。iPad 也走同一条路径：
+  // 旋钮映射为鼠标滚轮时，指针在题目区域上滚动的是这张卡片，而不是整个页面。
+  // 不要再按 iPad 改成 document.scrollingElement 整页滚动。
   function readingScroller() {
-    return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
+    return root.querySelector('.practice-content');
+  }
+
+  function rerender() {
+    render(practice.state);
+  }
+
+  async function uploadLog() {
+    if (!navigator.onLine) {
+      logError = '当前离线，联网后再上传。';
+      logMessage = '';
+      rerender();
+      return;
+    }
+    const token = readLogConfig().token;
+    if (!token) {
+      openTokenDialog('upload');
+      return;
+    }
+    logBusy = true;
+    logError = '';
+    logResultUrl = '';
+    logMessage = '正在上传…';
+    rerender();
+    try {
+      const result = await uploadRuntimeLog(token, practice.state.bank);
+      logResultUrl = result.url;
+      logMessage = `已上传到 Issue #${result.number}${result.created ? '（新建）' : '（追加评论）'}。`;
+    } catch (error) {
+      logError = `上传失败：${error.message}`;
+      if (/Token|权限|仓库/.test(error.message)) {
+        openTokenDialog('upload', `上传失败：${error.message}`);
+      }
+    } finally {
+      logBusy = false;
+      rerender();
+    }
+  }
+
+  async function copyLog() {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('当前浏览器不支持剪贴板');
+      await navigator.clipboard.writeText(logText());
+      logMessage = '日志已复制，可粘贴发送。';
+      logError = '';
+    } catch (error) {
+      logError = `复制失败：${error.message}`;
+    }
+    rerender();
+  }
+
+  function clearLog() {
+    if (!window.confirm('清除本机保存的运行日志？已上传到 Issue 的内容不受影响。')) return;
+    clearRuntimeLog();
+    logMessage = '本机日志已清除。';
+    logError = '';
+    rerender();
+  }
+
+  function openTokenDialog(mode, error = '') {
+    tokenDialogMode = mode;
+    tokenDialogOpen = true;
+    tokenDialogDraft = '';
+    tokenDialogError = error;
+    rerender();
+  }
+
+  function closeTokenDialog() {
+    tokenDialogOpen = false;
+    tokenDialogDraft = '';
+    tokenDialogError = '';
+    rerender();
+  }
+
+  async function saveTokenFromDialog() {
+    const token = tokenDialogDraft.trim();
+    if (!token) {
+      tokenDialogError = '请粘贴 GitHub Token。';
+      rerender();
+      return;
+    }
+    logBusy = true;
+    tokenDialogError = '';
+    rerender();
+    let saved = false;
+    try {
+      await verifyLogToken(token);
+      saveLogConfig({ token });
+      logTokenSaved = true;
+      tokenDialogOpen = false;
+      tokenDialogDraft = '';
+      logMessage = 'Token 已验证并保存在本机。';
+      logError = '';
+      saved = true;
+    } catch (error) {
+      tokenDialogError = `Token 验证失败：${error.message}`;
+    } finally {
+      logBusy = false;
+      rerender();
+    }
+    if (saved && tokenDialogMode === 'upload') await uploadLog();
+  }
+
+  function removeToken() {
+    if (!window.confirm('清除本机保存的 Token？日志仍会继续保存在本机。')) return;
+    clearLogConfig();
+    logTokenSaved = false;
+    logMessage = '已清除本机 Token，日志仍保存在本机。';
+    logError = '';
+    rerender();
+  }
+
+  function renderTokenDialog() {
+    const dialog = element('dialog', '', 'online-resources-dialog token-dialog');
+    dialog.append(element('h3', '填写 GitHub Token'));
+    dialog.append(element('p', tokenDialogMode === 'upload'
+      ? '日志仍会保存在本机。填好 Token 并保存后会继续上传本次日志。'
+      : '日志仍会保存在本机。Token 只保存在这台设备，用于把日志上传到项目 Issue。', 'hint'));
+    const input = document.createElement('input');
+    input.type = 'password';
+    input.autocomplete = 'off';
+    input.autocapitalize = 'off';
+    input.spellcheck = false;
+    input.placeholder = logTokenSaved ? '已保存，输入新 Token 可替换' : '粘贴 GitHub Token';
+    input.value = tokenDialogDraft;
+    input.disabled = logBusy;
+    input.addEventListener('input', () => { tokenDialogDraft = input.value; });
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        saveTokenFromDialog();
+      }
+    });
+    dialog.append(input);
+    if (tokenDialogError) dialog.append(element('p', tokenDialogError, 'error'));
+    const actions = element('div', '', 'button-row');
+    actions.append(button(logBusy ? '验证中…' : tokenDialogMode === 'upload' ? '保存并上传' : '保存 Token',
+      saveTokenFromDialog, { disabled: logBusy }));
+    actions.append(button('取消', closeTokenDialog, { disabled: logBusy }));
+    dialog.append(actions);
+    dialog.append(element('p', 'fine-grained token 只选择本仓库，权限勾选 Issues: Read and write。', 'hint'));
+    const link = element('a', '打开 GitHub Token 创建页');
+    link.href = 'https://github.com/settings/personal-access-tokens/new';
+    link.target = '_blank';
+    link.rel = 'noreferrer';
+    dialog.append(link);
+    dialog.addEventListener('close', () => {
+      if (!tokenDialogOpen) return;
+      tokenDialogOpen = false;
+      tokenDialogDraft = '';
+      rerender();
+    });
+    return dialog;
+  }
+
+  function renderLogTools(main, state) {
+    const stats = logStats();
+    const section = element('section', '', 'settings');
+    section.append(element('h3', '运行日志'));
+    section.append(element('p', `本机保存 ${stats.count} 条关键记录（约 ${Math.ceil(stats.bytes / 1024)} KB）。只记录题库、题目、判题、保存和错误等节点，不保存题干与音频内容。`, 'hint'));
+    section.append(element('p', `当前版本 ${APP_VERSION}；同一版本、同一用户的上传会追加到同一个 Issue。上传内容会出现在本仓库的公开 Issue 中。`, 'hint'));
+    const row = element('div', '', 'button-row');
+    row.append(button(logBusy ? '上传中…' : '上传运行日志', uploadLog, {
+      disabled: logBusy || state.importing || !stats.count,
+    }));
+    row.append(button('复制日志', copyLog, { disabled: logBusy || !stats.count }));
+    row.append(button('清除日志', clearLog, { disabled: logBusy || !stats.count }));
+    section.append(row);
+    if (logMessage) section.append(element('p', logMessage, 'hint'));
+    if (logResultUrl) {
+      const link = element('a', '打开最近上传的 Issue');
+      link.href = logResultUrl;
+      link.target = '_blank';
+      link.rel = 'noreferrer';
+      section.append(link);
+    }
+    if (logError) section.append(element('p', logError, 'error'));
+    section.append(element('p', logTokenSaved
+      ? '上传 Token 已保存在本机。'
+      : '尚未保存上传 Token；日志仍会正常记录，点击“上传运行日志”时再填写。', 'hint'));
+    const tokenRow = element('div', '', 'button-row');
+    tokenRow.append(button(logTokenSaved ? '更换 Token' : '设置 Token', () => openTokenDialog('save'), {
+      disabled: logBusy,
+    }));
+    if (logTokenSaved) tokenRow.append(button('清除 Token', removeToken, { disabled: logBusy }));
+    section.append(tokenRow);
+    if (tokenDialogOpen) section.append(renderTokenDialog());
+    main.append(section);
   }
 
   async function openOnlineResources() {
@@ -123,6 +326,7 @@ export function mountUi(root, practice) {
   function renderHome(main, state) {
     main.append(element('h2', '题库导入'));
     renderDataTools(main, state);
+    renderLogTools(main, state);
     if (!state.banks.length) {
       if (!state.loading) main.append(element('p', '暂无可用题库。'));
       return;
@@ -406,13 +610,10 @@ export function mountUi(root, practice) {
   function render(state) {
     const previousContent = root.querySelector('.practice-content');
     const scrollKey = previousContent?.dataset.contentKey;
-    const scrollTop = readingScroller()?.scrollTop ?? 0;
+    const scrollTop = previousContent?.scrollTop ?? 0;
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
-    if (state.screen === 'practice') {
-      main.classList.add('practice-page');
-      if (isIPad) main.classList.add('practice-document');
-    }
+    if (state.screen === 'practice') main.classList.add('practice-page');
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
     if (state.error && state.screen !== 'practice') main.append(element('p', state.error, 'error'));
@@ -427,10 +628,11 @@ export function mountUi(root, practice) {
     else if (state.screen === 'wrongBook' && state.bank) renderWrongBook(main, state);
     else renderHome(main, state);
     root.replaceChildren(main);
-    root.querySelector('.online-resources-dialog')?.showModal();
+    root.querySelector('.online-resources-dialog:not(.token-dialog)')?.showModal();
+    root.querySelector('.token-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
-    if (content) readingScroller().scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
-    else if (isIPad && previousContent) window.scrollTo(0, 0);
+    // 同一题内保留阅读位置；换题或提交后从题目卡片顶部开始。
+    if (content) content.scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
     if (focusedKey) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
       focused?.focus({ preventScroll: true });
@@ -479,7 +681,9 @@ export function mountUi(root, practice) {
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
-  if (!isIPad) root.addEventListener('wheel', scrollReading, { passive: false });
+  // iPad 的滚轮事件可能不可取消：可取消时由这里滚动题目卡片；
+  // 不可取消时交给 Safari 原生滚动指针下方的卡片，避免双重滚动。
+  root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';

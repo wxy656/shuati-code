@@ -3,8 +3,17 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from 'vite';
 
+const packageVersion = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+).version;
+const buildId = (process.env.GITHUB_SHA || '').slice(0, 7)
+  || `local-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}`;
+
 export default defineConfig({
   base: './',
+  define: {
+    __APP_VERSION__: JSON.stringify(`${packageVersion}+${buildId}`),
+  },
   build: {
     copyPublicDir: false,
     rolldownOptions: {

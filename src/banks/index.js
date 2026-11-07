@@ -1,4 +1,5 @@
 import { debugLog } from '../debug.js';
+import { recordLog } from '../log/index.js';
 
 const loadedBanks = new Map();
 
@@ -59,6 +60,7 @@ export async function loadBank(entry) {
   const bank = { ...entry, questions: data.questions, positionById, positionByDisplayNumber };
   loadedBanks.set(key, bank);
   debugLog('题库加载', { bankId: entry.bankId, version: entry.version, count: bank.questions.length });
+  recordLog('题库加载', { bankId: entry.bankId, version: entry.version, count: bank.questions.length });
   return bank;
 }
 

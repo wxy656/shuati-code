@@ -1,4 +1,5 @@
 import { debugLog } from '../debug.js';
+import { recordLog } from '../log/index.js';
 
 export function createAudioPlayer(onStatus) {
   const audio = new Audio();
@@ -9,6 +10,12 @@ export function createAudioPlayer(onStatus) {
     if (!current) return;
     const details = { ...current, status, message };
     debugLog('音频', details);
+    if (status === 'failed') {
+      recordLog('音频播放失败', {
+        bankId: current.bankId, questionId: current.questionId, kind: current.kind,
+        message, file: current.url?.split('/').at(-1) ?? '',
+      });
+    }
     onStatus(details);
   }
 

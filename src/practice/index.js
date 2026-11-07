@@ -3,6 +3,7 @@ import { createAudioPlayer } from '../audio/index.js';
 import { gradeQuestion } from '../grading/index.js';
 import { createStorage } from '../storage/index.js';
 import { debugLog } from '../debug.js';
+import { recordLog } from '../log/index.js';
 import { importBankZip } from '../banks/import.js';
 
 const defaultSettings = {
@@ -104,6 +105,7 @@ export function createPractice(offline) {
         notify();
       }
       debugLog('进度保存失败', { bankId: snapshot.bankId, questionId: snapshot.questionId, error: error.message });
+      recordLog('进度保存失败', { bankId: snapshot.bankId, questionId: snapshot.questionId, error: error.message });
     });
   }
 
@@ -123,6 +125,12 @@ export function createPractice(offline) {
     state.audio = { status: 'idle', kind: null, message: '' };
     offline.selectBank(bank);
     debugLog('题库恢复', {
+      bankId: bank.bankId,
+      version: bank.version,
+      questionId: state.savedQuestionId,
+      completed: state.stats.completed,
+    });
+    recordLog('题库恢复', {
       bankId: bank.bankId,
       version: bank.version,
       questionId: state.savedQuestionId,
@@ -151,6 +159,7 @@ export function createPractice(offline) {
       state.error = '';
     } catch (error) {
       state.error = `加载失败：${error.message}`;
+      recordLog('初始化失败', { error: error.message });
     } finally {
       state.loading = false;
       notify();
@@ -174,6 +183,7 @@ export function createPractice(offline) {
       await settingsWrites;
     } catch (error) {
       state.error = `切换题库失败：${error.message}`;
+      recordLog('切换题库失败', { bankId, error: error.message });
     } finally {
       state.loading = false;
       notify();
@@ -199,6 +209,11 @@ export function createPractice(offline) {
       type: currentQuestion().type,
       selectedOptionIds: [],
       submitted: false,
+    });
+    recordLog('进入题目', {
+      bankId: state.bank.bankId,
+      questionId: currentQuestion().id,
+      type: currentQuestion().type,
     });
     notify();
     if (state.settings.autoQuestion) playAudio('question', true);
@@ -338,6 +353,11 @@ export function createPractice(offline) {
       questionId: question.id, selectedOptionIds: graded.selectedOptionIds,
       correctOptionIds: graded.correctOptionIds, isCorrect: graded.isCorrect,
     });
+    recordLog('提交判题', {
+      bankId: attempt.bankId,
+      questionId: question.id, selected: graded.selectedOptionIds.join(','),
+      correct: graded.correctOptionIds.join(','), isCorrect: graded.isCorrect,
+    });
     let saved = false;
     try {
       await progressWrites.catch(() => {});
@@ -359,9 +379,15 @@ export function createPractice(offline) {
         questionId: question.id, result: attempt.isCorrect,
         completed: state.stats.completed, correct: state.stats.correct, incorrect: state.stats.incorrect,
       });
+      recordLog('作答已保存', {
+        bankId: attempt.bankId,
+        questionId: question.id, isCorrect: attempt.isCorrect,
+        completed: state.stats.completed, correct: state.stats.correct, incorrect: state.stats.incorrect,
+      });
     } catch (error) {
       state.error = `保存失败，请重试：${error.message}`;
       debugLog('作答保存失败', { questionId: question.id, error: error.message });
+      recordLog('作答保存失败', { questionId: question.id, error: error.message });
     } finally {
       state.submitting = false;
       notify();
@@ -386,6 +412,7 @@ export function createPractice(offline) {
     settingsWrites = settingsWrites.catch(() => {}).then(() => storage.saveSettings(snapshot));
     settingsWrites.catch((error) => {
       state.error = `设置保存失败：${error.message}`;
+      recordLog('设置保存失败', { error: error.message });
       notify();
     });
     notify();
@@ -470,9 +497,13 @@ export function createPractice(offline) {
       state.storageStatus = `${estimate ? `本机已使用约 ${Math.round((estimate.usage ?? 0) / 1048576)} MiB；` : ''}${persisted
         ? '浏览器已允许持久存储。' : '浏览器未承诺永久保留，学习记录可能丢失。'}`;
       state.notice = `${entry.name} 已导入，本机可离线练习。${previous ? '旧版学习记录仍保留。' : ''}`;
+      recordLog('题库导入完成', {
+        bankId: entry.bankId, version: entry.version, count: entry.questionCount,
+      });
       if (previous && previous.cacheName !== entry.cacheName) await caches.delete(previous.cacheName);
     } catch (error) {
       state.error = `导入题库失败：${error.message}`;
+      recordLog('题库导入失败', { error: error.message });
     } finally {
       state.importing = false;
       notify();
