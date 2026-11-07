@@ -18,15 +18,29 @@ body {
     max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
-/* 练习页固定一屏：头部和底部不动，只有题目卡片 .practice-content 自己滚动。
-   iPad 也使用卡片滚动，旋钮映射为鼠标滚轮时只滚题目区域；不要改成整页滚动。 */
+/* 练习页固定一屏：头部和底部不动，看得见的滚动只有题目卡片 .practice-content。
+   但 .practice-page 本身必须是可滚动容器：iPad 上旋钮发出的滚轮事件不能取消，
+   Safari 只会原生滚动指针下方的元素；旋钮的指针默认停在左上角头部，页面不可
+   滚动时滚轮就完全没反应。页面滚动量会转给卡片并立刻复位，见 src/ui/index.js。 */
 .practice-page {
+  position: relative;
   height: 100dvh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right))
     max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+}
+
+/* 撑出一点可滚动高度，让页面在内容未满一屏时也能接收滚轮。 */
+.practice-page::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 1px;
+  height: 100dvh;
 }
 
 .practice-footer {

@@ -618,7 +618,18 @@ export function mountUi(root, practice) {
     const scrollTop = previousContent?.scrollTop ?? 0;
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
-    if (state.screen === 'practice') main.classList.add('practice-page');
+    if (state.screen === 'practice') {
+      main.classList.add('practice-page');
+      // 旋钮的滚轮事件在 iPad 上不可取消，Safari 只原生滚动指针下方的元素。
+      // 页面本身作为滚动容器接收滚轮（指针在头部也能滚），这里把滚动量转给
+      // 题目卡片并立刻复位页面，所以看起来仍然只有卡片在滚、头部和底部不动。
+      main.addEventListener('scroll', () => {
+        const delta = main.scrollTop;
+        if (!delta) return;
+        main.scrollTop = 0;
+        main.querySelector('.practice-content')?.scrollBy({ top: delta });
+      });
+    }
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
     if (state.error && state.screen !== 'practice') main.append(element('p', state.error, 'error'));
@@ -680,22 +691,13 @@ export function mountUi(root, practice) {
   });
   function scrollReading(event) {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
+    // 不可取消的滚轮事件交给 Safari 原生滚动：指针在卡片上时滚卡片，
+    // 在头部/底部时滚 .practice-page，再由 render 里的 scroll 处理转给卡片。
+    if (!event.cancelable) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;
-    const distance = event.deltaY
-      * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1);
-    if (event.cancelable) {
-      event.preventDefault();
-      content.scrollBy({ top: distance });
-      return;
-    }
-    // iPad 上旋钮发出的滚轮事件通常不可取消，Safari 只会原生滚动指针下方的元素。
-    // 旋钮连上后指针默认停在屏幕左上角（头部区域），原生滚动落不到题目卡片上，
-    // 表现就是“旋钮没反应”。指针不在卡片上时由这里手动滚动卡片；指针在卡片上时
-    // 交给原生滚动，避免一次滚动两倍距离。浏览器无法移动系统指针，所以只能这样兜底。
-    const target = event.target;
-    const onCard = target instanceof Node && content.contains(target);
-    if (!onCard) content.scrollBy({ top: distance });
+    event.preventDefault();
+    content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
   root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
