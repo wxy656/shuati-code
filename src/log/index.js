@@ -1,5 +1,6 @@
 const LOG_KEY = 'shuati-runtime-log';
 const CONFIG_KEY = 'shuati-log-upload';
+const ISSUE_KEY = 'shuati-log-issues';
 const MAX_ENTRIES = 120;
 const MAX_CHARS = 24000;
 const UPLOAD_CHARS = 20000;
@@ -134,6 +135,24 @@ export function clearLogConfig() {
   }
 }
 
+function readIssueNumbers() {
+  try {
+    return JSON.parse(localStorage.getItem(ISSUE_KEY)) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+function rememberIssueNumber(key, number) {
+  const map = readIssueNumbers();
+  map[key] = number;
+  try {
+    localStorage.setItem(ISSUE_KEY, JSON.stringify(map));
+  } catch {
+    // 存储不可用时下次仍按标题查找。
+  }
+}
+
 async function github(path, token, options = {}) {
   let response;
   try {
@@ -208,11 +227,26 @@ export async function uploadRuntimeLog(token, bank, userId = DEFAULT_USER_ID) {
   if (!entries.length) throw new Error('本机暂无日志');
   const title = `[${APP_VERSION}][${userId}] 运行日志`;
   const body = uploadBody(bank, userId);
+  const issueKey = `${APP_VERSION}|${userId}`;
+  // 先按本机记住的 Issue 编号追加评论。GitHub 的列表接口对刚创建的 Issue
+  // 有几秒延迟，只按标题搜索时连续上传会各建一条同标题 Issue。
+  const remembered = readIssueNumbers()[issueKey];
+  if (remembered) {
+    try {
+      const comment = await github(`/repos/${REPO}/issues/${remembered}/comments`, token, {
+        method: 'POST', body: JSON.stringify({ body }),
+      });
+      return { number: remembered, created: false, url: comment.html_url };
+    } catch {
+      // Issue 被删除或编号失效时，继续按标题查找。
+    }
+  }
   const issues = await github(
     `/repos/${REPO}/issues?state=all&per_page=100&sort=created&direction=desc`, token,
   );
   const existing = issues.find((issue) => issue.title === title && !issue.pull_request);
   if (existing) {
+    rememberIssueNumber(issueKey, existing.number);
     const comment = await github(`/repos/${REPO}/issues/${existing.number}/comments`, token, {
       method: 'POST', body: JSON.stringify({ body }),
     });
@@ -221,5 +255,6 @@ export async function uploadRuntimeLog(token, bank, userId = DEFAULT_USER_ID) {
   const issue = await github(`/repos/${REPO}/issues`, token, {
     method: 'POST', body: JSON.stringify({ title, body }),
   });
+  rememberIssueNumber(issueKey, issue.number);
   return { number: issue.number, created: true, url: issue.html_url };
 }

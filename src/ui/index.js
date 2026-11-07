@@ -73,6 +73,7 @@ export function mountUi(root, practice) {
   }
 
   async function uploadLog() {
+    if (logBusy) return;
     if (!navigator.onLine) {
       logError = '当前离线，联网后再上传。';
       logMessage = '';
