@@ -18,14 +18,12 @@ body {
     max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
-/* 练习页固定一屏：头部和底部不动，看得见的滚动只有题目卡片 .practice-content。
-   但 .practice-page 本身必须是可滚动容器：iPad 上旋钮发出的滚轮事件不能取消，
-   Safari 只会原生滚动指针下方的元素；旋钮的指针默认停在左上角头部，页面不可
-   滚动时滚轮就完全没反应。页面滚动量会转给卡片并立刻复位，见 src/ui/index.js。 */
+/* 练习页固定一屏，头部和底部不动。iPad 上旋钮发出的滚轮事件不能取消，
+   Safari 只原生滚动指针正下方的元素；旋钮指针默认停在左上角头部，所以
+   iPad 必须让 document 整体滚动，再用 sticky 把头部和底部钉在视口边缘。
+   这是实机验证过唯一能生效的方式，见 src/ui/index.js 的 readingScroller。 */
 .practice-page {
-  position: relative;
   height: 100dvh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -33,21 +31,40 @@ body {
     max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
 }
 
-/* 撑出一点可滚动高度，让页面在内容未满一屏时也能接收滚轮。 */
-.practice-page::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 1px;
-  height: 100dvh;
-}
-
 .practice-footer {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   gap: 0.35rem;
+}
+
+/* iPad：整页（document）是滚动容器，指针停在页面任何位置都能滚；
+   头部和底部 sticky 在视口边缘，看起来仍然固定不动。 */
+.practice-document {
+  height: auto;
+}
+
+.practice-document .practice-body {
+  flex: 1 0 auto;
+}
+
+.practice-document .practice-content {
+  overflow: visible;
+}
+
+.practice-document .practice-header,
+.practice-document .practice-footer {
+  position: sticky;
+  z-index: 1;
+  background: #f7f8fa;
+}
+
+.practice-document .practice-header {
+  top: env(safe-area-inset-top);
+}
+
+.practice-document .practice-footer {
+  bottom: env(safe-area-inset-bottom);
 }
 
 .app-title {

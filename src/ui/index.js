@@ -61,11 +61,12 @@ export function mountUi(root, practice) {
   let logResultUrl = '';
   const selectedWrongIds = new Set();
 
-  // 练习页始终只滚白色题目卡片，头部和底部固定不动。iPad 也走同一条路径：
-  // 旋钮映射为鼠标滚轮时，不管系统指针停在哪里，滚动的都是这张卡片。
-  // 不要再按 iPad 改成 document.scrollingElement 整页滚动。
+  // iPad 上旋钮映射为鼠标滚轮时，滚轮事件不可取消，Safari 只原生滚动指针正下方
+  // 的元素；指针默认停在左上角头部，所以必须让整个 document 成为滚动容器（头部和
+  // 底部用 sticky 钉住），不能只滚题目卡片。其他平台仍只滚卡片，行为不变。
+  // 这是实机验证过唯一能生效的方式，不要再改回卡片滚动或页面滚动后再转移。
   function readingScroller() {
-    return root.querySelector('.practice-content');
+    return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
   }
 
   function rerender() {
@@ -615,20 +616,13 @@ export function mountUi(root, practice) {
   function render(state) {
     const previousContent = root.querySelector('.practice-content');
     const scrollKey = previousContent?.dataset.contentKey;
-    const scrollTop = previousContent?.scrollTop ?? 0;
+    const scrollTop = readingScroller()?.scrollTop ?? 0;
     const focusedKey = root.contains(document.activeElement) ? document.activeElement.dataset.focusKey : null;
     const main = element('main', '', 'page');
     if (state.screen === 'practice') {
       main.classList.add('practice-page');
-      // 旋钮的滚轮事件在 iPad 上不可取消，Safari 只原生滚动指针下方的元素。
-      // 页面本身作为滚动容器接收滚轮（指针在头部也能滚），这里把滚动量转给
-      // 题目卡片并立刻复位页面，所以看起来仍然只有卡片在滚、头部和底部不动。
-      main.addEventListener('scroll', () => {
-        const delta = main.scrollTop;
-        if (!delta) return;
-        main.scrollTop = 0;
-        main.querySelector('.practice-content')?.scrollBy({ top: delta });
-      });
+      // iPad 走 document 原生滚动，头部和底部由 .practice-document 的 sticky 固定。
+      if (isIPad) main.classList.add('practice-document');
     }
     if (state.screen !== 'practice') main.append(element('h1', '刷题', 'app-title'));
     if (state.loading) main.append(element('p', '正在加载…'));
@@ -647,8 +641,10 @@ export function mountUi(root, practice) {
     root.querySelector('.online-resources-dialog:not(.token-dialog)')?.showModal();
     root.querySelector('.token-dialog')?.showModal();
     const content = root.querySelector('.practice-content');
-    // 同一题内保留阅读位置；换题或提交后从题目卡片顶部开始。
-    if (content) content.scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
+    // 同一题内保留阅读位置；换题或提交后从题目顶部开始。
+    // iPad 滚的是 document，所以位置也要存回 document.scrollingElement。
+    if (content) readingScroller().scrollTop = content.dataset.contentKey === scrollKey ? scrollTop : 0;
+    else if (isIPad && previousContent) window.scrollTo(0, 0);
     if (focusedKey) {
       const focused = [...root.querySelectorAll('button')].find((item) => item.dataset.focusKey === focusedKey);
       focused?.focus({ preventScroll: true });
@@ -691,15 +687,14 @@ export function mountUi(root, practice) {
   });
   function scrollReading(event) {
     if (practice.state.screen !== 'practice' || event.ctrlKey || !event.deltaY) return;
-    // 不可取消的滚轮事件交给 Safari 原生滚动：指针在卡片上时滚卡片，
-    // 在头部/底部时滚 .practice-page，再由 render 里的 scroll 处理转给卡片。
     if (!event.cancelable) return;
     const content = root.querySelector('.practice-content');
     if (!content) return;
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
-  root.addEventListener('wheel', scrollReading, { passive: false });
+  // iPad 不接管滚轮，交给 Safari 原生滚动 document，指针停在哪里都能滚。
+  if (!isIPad) root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');
     if (toggle) toggle.textContent = document.fullscreenElement ? '退出全屏' : '进入全屏';
