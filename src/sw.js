@@ -55,9 +55,14 @@ self.addEventListener('fetch', (event) => {
     }
     if (request.mode === 'navigate') {
       try {
-        return await fetch(request, { cache: 'reload' });
+        // 更新后自动刷新时 GitHub Pages 偶尔连不上，网络请求会一直挂到 Safari
+        // 弹“无法连接”错误页。超时后直接落回缓存里的当前版本，保证应用能启动。
+        return await fetch(request, {
+          cache: 'reload',
+          signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(8000) : undefined,
+        });
       } catch {
-        return (await caches.open(shellName)).match(url('index.html'));
+        return (await caches.open(shellName)).match(url('index.html')) ?? Response.error();
       }
     }
     const cached = await caches.match(request.url);
