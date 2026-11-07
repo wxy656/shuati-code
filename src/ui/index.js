@@ -61,10 +61,13 @@ export function mountUi(root, practice) {
   let logResultUrl = '';
   const selectedWrongIds = new Set();
 
-  // iPad 上旋钮映射为鼠标滚轮时，滚轮事件不可取消，Safari 只原生滚动指针正下方
-  // 的元素；指针默认停在左上角头部，所以必须让整个 document 成为滚动容器（头部和
-  // 底部用 sticky 钉住），不能只滚题目卡片。其他平台仍只滚卡片，行为不变。
-  // 这是实机验证过唯一能生效的方式，不要再改回卡片滚动或页面滚动后再转移。
+  // 旋钮滚动逻辑（iPad）：实机反复试错后唯一有效的方案，对应构建 2892f7998d19
+  // （commit 24f89ea）。iPad 上旋钮发出的滚轮事件不可取消，Safari 只原生滚动指针
+  // 正下方的元素，而指针默认停在左上角头部；Web 端无法移动系统指针，所以只能让
+  // 整个 document 成为滚动容器，头部和底部用 sticky 钉住（见 style.css 的
+  // .practice-document）。不要再改成只滚 .practice-content、不要做“页面滚动后把
+  // 滚动量转给卡片”，也不要依赖指针或焦点位置。改这里之前必须在真实 iPad 上用
+  // 旋钮完整验证，本地浏览器模拟不能代表 iPad 的行为。
   function readingScroller() {
     return isIPad ? document.scrollingElement : root.querySelector('.practice-content');
   }
@@ -693,7 +696,9 @@ export function mountUi(root, practice) {
     event.preventDefault();
     content.scrollBy({ top: event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? content.clientHeight : 1) });
   }
-  // iPad 不接管滚轮，交给 Safari 原生滚动 document，指针停在哪里都能滚。
+  // iPad 不接管滚轮：交给 Safari 原生滚动 document，指针停在哪里都能滚。
+  // 不要给 iPad 加 wheel 监听或 preventDefault，旋钮的事件不可取消，加了也拦不住，
+  // 反而会让人误以为页面滚动了。桌面端仍由这里接管，只滚题目卡片。
   if (!isIPad) root.addEventListener('wheel', scrollReading, { passive: false });
   document.addEventListener('fullscreenchange', () => {
     const toggle = root.querySelector('.fullscreen-toggle');

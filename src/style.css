@@ -21,7 +21,9 @@ body {
 /* 练习页固定一屏，头部和底部不动。iPad 上旋钮发出的滚轮事件不能取消，
    Safari 只原生滚动指针正下方的元素；旋钮指针默认停在左上角头部，所以
    iPad 必须让 document 整体滚动，再用 sticky 把头部和底部钉在视口边缘。
-   这是实机验证过唯一能生效的方式，见 src/ui/index.js 的 readingScroller。 */
+   这是实机验证过唯一能生效的方式（构建 2892f7998d19 / commit 24f89ea）。
+   后续修改旋钮逻辑前先读 src/ui/index.js 的 readingScroller，并在真实 iPad
+   上用旋钮验证，不要只靠本地浏览器模拟。 */
 .practice-page {
   height: 100dvh;
   display: flex;
